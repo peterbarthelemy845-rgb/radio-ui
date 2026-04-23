@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=480, initial-scale=1.0">
+<style>
+body {
+    margin:0;
+    font-family:Arial, sans-serif;
+    background: radial-gradient(circle at top, #1e3a8a, #020617);
+    color:white;
+}
+
+.screen {
+    width:480px;
+    height:480px;
+    margin:auto;
+    position:relative;
+    overflow:hidden;
+}
+
+.main-content {
+    text-align:center;
+    transform: translateY(-20px);
+}
+
+.radio-circle {
+    width:200px;
+    height:200px;
+    margin:10px auto;
+    border-radius:50%;
+    background: radial-gradient(circle,#3b82f6,#1e40af);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:28px;
+}
+
+.controls button {
+    font-size:26px;
+    margin:8px;
+    padding:10px 15px;
+}
+
+.status-only {
+    pointer-events:none;
+    opacity:0.8;
+}
+
+.bottom-nav {
+    position:absolute;
+    bottom:6px;
+    left:6px;
+    right:6px;
+    height:95px;
+    display:flex;
+    justify-content:space-around;
+    align-items:center;
+    background: rgba(255,255,255,0.1);
+    border-radius:20px;
+}
+
+.nav-item {
+    text-align:center;
+    font-size:14px;
+}
+
+.nav-item i {
+    font-size:30px;
+}
+</style>
+</head>
+
+<body>
+<div class="screen">
+
+<div class="main-content">
+    <div>La Voix Divine</div>
+
+    <!-- WIFI + BLUETOOTH (DISPLAY ONLY) -->
+    <div class="status-only">📶 🔵</div>
+
+    <div class="radio-circle">RADIO</div>
+
+    <div>La Voix Divine</div>
+    <div>radiolavoixdivine.com</div>
+    <div style="color:red;">NO NETWORK</div>
+
+    <div class="controls">
+        <button>⏮</button>
+        <button>▶</button>
+        <button>⏭</button>
+    </div>
+</div>
+
+<div class="bottom-nav">
+    <div class="nav-item">Radio</div>
+    <div class="nav-item">Library</div>
+    <div class="nav-item">Ads</div>
+    <div class="nav-item">Settings</div>
+    <div class="nav-item">Add</div>
+</div>
+
+</div>
+</body>
+</html>
