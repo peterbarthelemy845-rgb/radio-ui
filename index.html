@@ -1,951 +1,279 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Radio UI</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
-    }
-
-    html, body {
-      width: 100%;
-      height: 100%;
-      margin: 0;
-      overflow: hidden;
-      font-family: Arial, Helvetica, sans-serif;
-      background: #050816;
-      color: #fff;
-    }
-
-    body {
-      overscroll-behavior: none;
-    }
-
-    button, input {
-      font-family: inherit;
-    }
-
-    .screen {
-      position: relative;
-      width: 100vw;
-      height: 100vh;
-      overflow: hidden;
-      background:
-        radial-gradient(circle at 50% 20%, rgba(46, 104, 255, 0.42) 0%, rgba(46, 104, 255, 0.14) 18%, rgba(46, 104, 255, 0) 40%),
-        radial-gradient(circle at 20% 40%, rgba(65, 105, 255, 0.22) 0%, rgba(65, 105, 255, 0) 28%),
-        radial-gradient(circle at 82% 42%, rgba(95, 85, 255, 0.14) 0%, rgba(95, 85, 255, 0) 24%),
-        linear-gradient(180deg, #0b2fb9 0%, #112e9a 22%, #18276f 52%, #131f53 100%);
-    }
-
-    .page {
-      position: absolute;
-      inset: 0;
-      display: none;
-    }
-
-    .page.active {
-      display: block;
-    }
-
-    .top-bar {
-      position: absolute;
-      top: 18px;
-      left: 18px;
-      right: 18px;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      z-index: 20;
-    }
-
-    .top-left {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-    }
-
-    .status-box,
-    .volume-box {
-      width: 72px;
-      height: 72px;
-      border-radius: 16px;
-      background: rgba(255, 255, 255, 0.08);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
-      border: none;
-      color: white;
-      font-size: 34px;
-    }
-
-    .status-box {
-      pointer-events: none;
-    }
-
-    .volume-box {
-      cursor: pointer;
-    }
-
-    .connection-text {
-      position: absolute;
-      top: 102px;
-      left: 22px;
-      font-size: 22px;
-      font-weight: 700;
-      color: rgba(255,255,255,0.96);
-      z-index: 20;
-    }
-
-    .main-content {
-      position: absolute;
-      top: 170px;
-      left: 0;
-      right: 0;
-      text-align: center;
-      padding: 0 28px 150px;
-    }
-
-    .stream-label {
-      font-size: 18px;
-      font-weight: 700;
-      letter-spacing: 4px;
-      color: rgba(210, 235, 255, 0.78);
-      margin-bottom: 14px;
-    }
-
-    .station-name {
-      font-size: 54px;
-      font-weight: 800;
-      line-height: 1.05;
-      margin-bottom: 10px;
-    }
-
-    .station-url {
-      font-size: 24px;
-      font-weight: 700;
-      color: rgba(255,255,255,0.88);
-      margin-bottom: 18px;
-    }
-
-    .status-line {
-      font-size: 26px;
-      font-weight: 800;
-      color: #ff5b5b;
-      margin-bottom: 30px;
-    }
-
-    .controls {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 28px;
-      margin-bottom: 0;
-    }
-
-    .control-btn {
-      border: none;
-      background: transparent;
-      color: #fff;
-      min-width: 70px;
-      min-height: 70px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 42px;
-    }
-
-    .play-btn {
-      width: 96px;
-      height: 96px;
-      border-radius: 22px;
-      border: none;
-      cursor: pointer;
-      color: white;
-      background: linear-gradient(180deg, #37a1ff 0%, #246cff 100%);
-      box-shadow: 0 8px 20px rgba(21, 87, 255, 0.40);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 46px;
-    }
-
-    .bottom-nav {
-      position: absolute;
-      left: 18px;
-      right: 18px;
-      bottom: 14px;
-      height: 110px;
-      border-radius: 24px;
-      background: rgba(255,255,255,0.10);
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
-      display: flex;
-      align-items: center;
-      justify-content: space-around;
-      z-index: 30;
-    }
-
-    .nav-item {
-      flex: 1;
-      height: 100%;
-      border: none;
-      background: transparent;
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      font-size: 18px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .nav-icon {
-      font-size: 34px;
-      line-height: 1;
-    }
-
-    .nav-item.active {
-      color: #9dd0ff;
-    }
-
-    .settings-page,
-    .subpage {
-      position: absolute;
-      inset: 0;
-      padding: 24px 20px 136px;
-      overflow: hidden;
-    }
-
-    .settings-title,
-    .subpage-title {
-      font-size: 42px;
-      font-weight: 800;
-      margin: 0 0 18px 4px;
-    }
-
-    .settings-list,
-    .subpage-card {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      height: calc(100vh - 210px);
-      overflow-y: auto;
-      padding-right: 4px;
-    }
-
-    .settings-list::-webkit-scrollbar,
-    .subpage-card::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    .settings-list::-webkit-scrollbar-thumb,
-    .subpage-card::-webkit-scrollbar-thumb {
-      background: rgba(255,255,255,0.28);
-      border-radius: 10px;
-    }
-
-    .settings-row,
-    .device-row {
-      min-height: 78px;
-      border-radius: 18px;
-      background: rgba(255,255,255,0.08);
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 20px;
-      font-size: 24px;
-      font-weight: 700;
-      border: none;
-      color: white;
-      cursor: pointer;
-    }
-
-    .settings-left {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-
-    .settings-value {
-      font-size: 22px;
-      color: rgba(255,255,255,0.92);
-    }
-
-    .subpage-header {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      margin-bottom: 18px;
-    }
-
-    .back-btn {
-      width: 58px;
-      height: 58px;
-      border-radius: 14px;
-      border: none;
-      background: rgba(255,255,255,0.10);
-      color: white;
-      font-size: 30px;
-      cursor: pointer;
-      flex: 0 0 auto;
-    }
-
-    .device-row {
-      min-height: 70px;
-      font-size: 22px;
-      cursor: default;
-    }
-
-    .connect-btn {
-      border: none;
-      border-radius: 12px;
-      background: linear-gradient(180deg, #37a1ff 0%, #246cff 100%);
-      color: white;
-      font-size: 16px;
-      font-weight: 700;
-      padding: 10px 14px;
-      cursor: pointer;
-    }
-
-    .muted {
-      color: rgba(255,255,255,0.78);
-      font-size: 20px;
-      font-weight: 700;
-    }
-
-    .slider-row {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      width: 100%;
-      max-width: 280px;
-    }
-
-    .slider-row input[type="range"] {
-      flex: 1;
-      accent-color: #4ec1ff;
-    }
-
-    .sound-big {
-      margin-top: 12px;
-      padding: 18px;
-      border-radius: 20px;
-      background: rgba(255,255,255,0.08);
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
-    }
-
-    .sound-big-label {
-      font-size: 26px;
-      font-weight: 800;
-      margin-bottom: 18px;
-    }
-
-    .sound-value {
-      font-size: 24px;
-      font-weight: 800;
-      min-width: 56px;
-      text-align: right;
-    }
-
-    .disabled {
-      opacity: 0.5;
-      pointer-events: none;
-    }
-
-    @media (max-width: 600px) {
-      .status-box,
-      .volume-box {
-        width: 54px;
-        height: 54px;
-        border-radius: 12px;
-        font-size: 28px;
-      }
-
-      .connection-text {
-        top: 82px;
-        left: 18px;
-        font-size: 16px;
-      }
-
-      .main-content {
-        top: 130px;
-        padding: 0 18px 112px;
-      }
-
-      .stream-label {
-        font-size: 13px;
-        letter-spacing: 3px;
-        margin-bottom: 10px;
-      }
-
-      .station-name {
-        font-size: 30px;
-      }
-
-      .station-url {
-        font-size: 16px;
-        margin-bottom: 14px;
-      }
-
-      .status-line {
-        font-size: 18px;
-        margin-bottom: 20px;
-      }
-
-      .controls {
-        gap: 18px;
-      }
-
-      .control-btn {
-        min-width: 46px;
-        min-height: 46px;
-        font-size: 30px;
-      }
-
-      .play-btn {
-        width: 70px;
-        height: 70px;
-        border-radius: 16px;
-        font-size: 34px;
-      }
-
-      .bottom-nav {
-        left: 14px;
-        right: 14px;
-        bottom: 12px;
-        height: 82px;
-        border-radius: 18px;
-      }
-
-      .nav-item {
-        gap: 6px;
-        font-size: 13px;
-      }
-
-      .nav-icon {
-        font-size: 24px;
-      }
-
-      .settings-page,
-      .subpage {
-        padding: 18px 16px 102px;
-      }
-
-      .settings-title,
-      .subpage-title {
-        font-size: 34px;
-        margin-bottom: 16px;
-      }
-
-      .settings-list,
-      .subpage-card {
-        height: calc(100vh - 170px);
-      }
-
-      .settings-row,
-      .device-row {
-        min-height: 64px;
-        border-radius: 16px;
-        padding: 0 18px;
-        font-size: 20px;
-      }
-
-      .settings-value,
-      .muted {
-        font-size: 18px;
-      }
-
-      .back-btn {
-        width: 48px;
-        height: 48px;
-        font-size: 24px;
-        border-radius: 12px;
-      }
-
-      .connect-btn {
-        font-size: 14px;
-        padding: 10px 12px;
-      }
-
-      .sound-big-label {
-        font-size: 22px;
-      }
-
-      .sound-value {
-        font-size: 20px;
-      }
-    }
-  </style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+color:white;
+background: radial-gradient(circle at top,#1e3a8a,#020617);
+overflow:hidden;
+}
+
+/* ===== TOP BAR ===== */
+
+.top{
+position:absolute;
+top:10px;
+left:10px;
+right:10px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+/* smaller icons */
+.top-icons{
+display:flex;
+gap:8px;
+}
+
+.icon-box{
+width:40px;
+height:40px;
+border-radius:10px;
+background:rgba(255,255,255,0.1);
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:16px;
+}
+
+/* smaller connection text */
+.connection{
+position:absolute;
+top:60px;
+left:12px;
+font-size:14px;
+opacity:0.85;
+}
+
+/* ===== CENTER CONTENT ===== */
+
+.center{
+position:absolute;
+top:120px;
+width:100%;
+text-align:center;
+}
+
+.label{
+letter-spacing:3px;
+font-size:14px;
+opacity:0.7;
+}
+
+.title{
+font-size:32px;
+font-weight:bold;
+margin-top:10px;
+}
+
+.url{
+font-size:16px;
+opacity:0.8;
+}
+
+.status{
+margin-top:10px;
+color:#ff5b5b;
+font-weight:bold;
+}
+
+/* ===== PLAYER ===== */
+
+.controls{
+margin-top:20px;
+display:flex;
+justify-content:center;
+align-items:center;
+gap:25px;
+}
+
+.btn{
+background:none;
+border:none;
+color:white;
+font-size:26px;
+}
+
+.play{
+width:70px;
+height:70px;
+border-radius:16px;
+background:linear-gradient(#3b82f6,#1d4ed8);
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:30px;
+}
+
+/* ===== BOTTOM NAV ===== */
+
+.nav{
+position:absolute;
+bottom:10px;
+left:10px;
+right:10px;
+height:80px;
+border-radius:20px;
+background:rgba(255,255,255,0.1);
+display:flex;
+justify-content:space-around;
+align-items:center;
+font-size:14px;
+}
+
+.nav div{
+text-align:center;
+}
+
+.page{
+display:none;
+}
+
+.active{
+display:block;
+}
+
+</style>
 </head>
+
 <body>
-  <div class="screen">
-    <div id="radioPage" class="page active">
-      <div class="top-bar">
-        <div class="top-left">
-          <div class="status-box" id="wifiIconBox" title="Wi-Fi">📶</div>
-          <div class="status-box" id="btIconBox" title="Bluetooth">🅱</div>
-        </div>
-        <button class="volume-box" title="Sound" onclick="showPage('soundPage')">🔊</button>
-      </div>
 
-      <div class="connection-text" id="connectionText">Connected to Peter</div>
+<!-- ===== RADIO PAGE ===== -->
+<div id="radio" class="active">
 
-      <div class="main-content">
-        <div class="stream-label" id="stationSubtitle">INTERNET STREAM</div>
-        <div class="station-name" id="stationName">La Voix Divine</div>
-        <div class="station-url" id="stationUrl">radiolavoixdivine.com</div>
-        <div class="status-line" id="networkStatus">● NO NETWORK</div>
-
-        <div class="controls">
-          <button class="control-btn" aria-label="Previous" onclick="prevPreset()">⏮</button>
-          <button class="play-btn" id="playBtn" aria-label="Play" onclick="togglePlayback()">▶</button>
-          <button class="control-btn" aria-label="Next" onclick="nextPreset()">⏭</button>
-        </div>
-      </div>
-    </div>
-
-    <div id="libraryPage" class="page">
-      <div class="settings-page">
-        <div class="settings-title">Library</div>
-        <div class="settings-list" id="libraryList">
-          <div class="device-row"><span>Loading presets...</span></div>
-        </div>
-      </div>
-    </div>
-
-    <div id="adsPage" class="page">
-      <div class="settings-page">
-        <div class="settings-title">Ads</div>
-        <div class="settings-list">
-          <div class="device-row"><span>Ad space ready</span></div>
-          <div class="device-row"><span>Promo area</span></div>
-        </div>
-      </div>
-    </div>
-
-    <div id="settingsPage" class="page">
-      <div class="settings-page">
-        <div class="settings-title">Settings</div>
-        <div class="settings-list">
-          <button class="settings-row" onclick="showPage('wifiPage'); loadWifiStatus();">
-            <div class="settings-left"><span>📶</span><span>Wi-Fi</span></div>
-            <div class="settings-value" id="wifiSettingValue">Loading ›</div>
-          </button>
-
-          <button class="settings-row" onclick="showPage('bluetoothPage'); loadBluetoothStatus();">
-            <div class="settings-left"><span>🅱</span><span>Bluetooth</span></div>
-            <div class="settings-value" id="btSettingValue">Loading ›</div>
-          </button>
-
-          <div class="settings-row">
-            <div class="settings-left"><span>☀</span><span>Display &amp; Brightness</span></div>
-            <div class="settings-value">Auto ›</div>
-          </div>
-
-          <button class="settings-row" onclick="showPage('soundPage')">
-            <div class="settings-left"><span>🔊</span><span>Sound</span></div>
-            <div class="slider-row">
-              <input id="settingsVolume" type="range" min="0" max="100" value="80" oninput="setVolume(this.value)" />
-            </div>
-          </button>
-
-          <div class="settings-row">
-            <div class="settings-left"><span>💬</span><span>Contact Us</span></div>
-            <div class="settings-value">radiolavoixdivine.com ›</div>
-          </div>
-
-          <div class="settings-row">
-            <div class="settings-left"><span>↻</span><span>Reboot</span></div>
-            <div class="settings-value">›</div>
-          </div>
-
-          <div class="settings-row">
-            <div class="settings-left"><span>⏻</span><span>Power Off</span></div>
-            <div class="settings-value">›</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div id="wifiPage" class="page">
-      <div class="subpage">
-        <div class="subpage-header">
-          <button class="back-btn" onclick="showPage('settingsPage')">‹</button>
-          <div class="subpage-title">Wi-Fi</div>
-        </div>
-
-        <div class="subpage-card" id="wifiList">
-          <div class="device-row"><span>Loading Wi-Fi...</span></div>
-        </div>
-      </div>
-    </div>
-
-    <div id="bluetoothPage" class="page">
-      <div class="subpage">
-        <div class="subpage-header">
-          <button class="back-btn" onclick="showPage('settingsPage')">‹</button>
-          <div class="subpage-title">Bluetooth</div>
-        </div>
-
-        <div class="subpage-card" id="btList">
-          <div class="device-row"><span>Loading Bluetooth...</span></div>
-        </div>
-      </div>
-    </div>
-
-    <div id="soundPage" class="page">
-      <div class="subpage">
-        <div class="subpage-header">
-          <button class="back-btn" onclick="showPage('settingsPage')">‹</button>
-          <div class="subpage-title">Sound</div>
-        </div>
-
-        <div class="sound-big">
-          <div class="sound-big-label">Volume</div>
-          <div class="slider-row">
-            <span>🔉</span>
-            <input id="mainVolume" type="range" min="0" max="100" value="80" oninput="setVolume(this.value)" />
-            <span>🔊</span>
-            <div id="volumeValue" class="sound-value">80</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div id="addPage" class="page">
-      <div class="settings-page">
-        <div class="settings-title">Add Station</div>
-        <div class="settings-list">
-          <div class="device-row"><span class="muted">Add new stream URL here later</span></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="bottom-nav">
-      <button class="nav-item active" onclick="showPage('radioPage', this)">
-        <div class="nav-icon">📻</div>
-        <div>Radio</div>
-      </button>
-      <button class="nav-item" onclick="showPage('libraryPage', this); renderLibrary();">
-        <div class="nav-icon">🎵</div>
-        <div>Library</div>
-      </button>
-      <button class="nav-item" onclick="showPage('adsPage', this)">
-        <div class="nav-icon">📢</div>
-        <div>Ads</div>
-      </button>
-      <button class="nav-item" onclick="showPage('settingsPage', this); loadWifiStatus(); loadBluetoothStatus();">
-        <div class="nav-icon">⚙</div>
-        <div>Settings</div>
-      </button>
-      <button class="nav-item" onclick="showPage('addPage', this)">
-        <div class="nav-icon">➕</div>
-        <div>Add</div>
-      </button>
-    </div>
+<div class="top">
+  <div class="top-icons">
+    <div class="icon-box">WiFi</div>
+    <div class="icon-box">BT</div>
   </div>
+  <div class="icon-box">Vol</div>
+</div>
 
-  <script>
-    let appState = {
-      presets: [],
-      preset_index: 0,
-      volume: 80,
-      playing: false,
-      station_name: 'La Voix Divine',
-      station_subtitle: 'Internet Stream',
-      stream_url: ''
-    };
+<div class="connection" id="conn">Connected...</div>
 
-    function setActiveNav(pageId) {
-      const map = {
-        radioPage: 0,
-        libraryPage: 1,
-        adsPage: 2,
-        settingsPage: 3,
-        addPage: 4
-      };
-      document.querySelectorAll('.bottom-nav .nav-item').forEach(btn => btn.classList.remove('active'));
-      if (map[pageId] !== undefined) {
-        document.querySelectorAll('.bottom-nav .nav-item')[map[pageId]].classList.add('active');
-      }
-    }
+<div class="center">
+  <div class="label">INTERNET STREAM</div>
+  <div class="title" id="name">La Voix Divine</div>
+  <div class="url">radiolavoixdivine.com</div>
+  <div class="status" id="status">● NO NETWORK</div>
 
-    function showPage(pageId, navButton) {
-      document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
-      document.getElementById(pageId).classList.add('active');
+  <div class="controls">
+    <button class="btn" onclick="prev()">⏮</button>
+    <button class="play" onclick="toggle()" id="play">▶</button>
+    <button class="btn" onclick="next()">⏭</button>
+  </div>
+</div>
 
-      if (navButton) {
-        document.querySelectorAll('.bottom-nav .nav-item').forEach(btn => btn.classList.remove('active'));
-        navButton.classList.add('active');
-      } else {
-        setActiveNav(pageId);
-      }
-    }
+</div>
 
-    function updateUiFromState() {
-      document.getElementById('stationName').textContent = appState.station_name || 'La Voix Divine';
-      document.getElementById('stationSubtitle').textContent = (appState.station_subtitle || 'Internet Stream').toUpperCase();
-      document.getElementById('stationUrl').textContent = 'radiolavoixdivine.com';
-      document.getElementById('playBtn').textContent = appState.playing ? '❚❚' : '▶';
+<!-- ===== SOUND PAGE ===== -->
+<div id="sound" class="page">
+<h2 style="padding:20px">Sound</h2>
 
-      document.getElementById('mainVolume').value = appState.volume;
-      document.getElementById('settingsVolume').value = appState.volume;
-      document.getElementById('volumeValue').textContent = appState.volume;
-      renderLibrary();
-    }
+<div style="padding:20px">
+<input type="range" min="0" max="100" value="50" id="vol" oninput="setVol(this.value)">
+<span id="volVal">50</span>
+</div>
 
-    async function loadState() {
-      try {
-        const res = await fetch('/api/state');
-        const data = await res.json();
+</div>
 
-        appState.presets = data.presets || [];
-        appState.preset_index = data.preset_index || 0;
-        appState.volume = typeof data.volume === 'number' ? data.volume : 80;
-        appState.station_name = data.station_name || 'La Voix Divine';
-        appState.station_subtitle = (data.playing && data.playing.station_subtitle) || 'Internet Stream';
-        appState.stream_url = data.stream_url || '';
-        appState.playing = !!(data.playing && data.playing.is_playing);
+<!-- ===== BT PAGE ===== -->
+<div id="bt" class="page">
+<h2 style="padding:20px">Bluetooth</h2>
+<div style="padding:20px">No devices</div>
+</div>
 
-        updateUiFromState();
-      } catch (err) {
-        console.log('state load failed', err);
-      }
-    }
+<!-- ===== NAV ===== -->
+<div class="nav">
+<div onclick="show('radio')">Radio</div>
+<div>Library</div>
+<div>Ads</div>
+<div onclick="show('sound')">Settings</div>
+<div>Add</div>
+</div>
 
-    async function loadNetworkStatus() {
-      try {
-        const res = await fetch('/api/network-status');
-        const data = await res.json();
-        const label = document.getElementById('networkStatus');
+<script>
 
-        if (data.connected && data.playing) {
-          label.textContent = '● LIVE';
-          label.style.color = '#ff7272';
-        } else if (data.connected) {
-          label.textContent = '● STOPPED';
-          label.style.color = '#ffb366';
-        } else {
-          label.textContent = '● NO NETWORK';
-          label.style.color = '#ff5b5b';
-        }
-      } catch (err) {
-        console.log('network status failed', err);
-      }
-    }
+/* ===== PAGE NAV ===== */
+function show(p){
+document.querySelectorAll('.page,#radio').forEach(e=>e.classList.remove('active'));
+document.getElementById(p).classList.add('active');
+}
 
-    async function playCurrentPreset() {
-      let preset = appState.presets[appState.preset_index];
+/* ===== PLAY CONTROL ===== */
+let playing=false;
 
-      if (!preset && appState.stream_url) {
-        preset = {
-          name: appState.station_name,
-          subtitle: appState.station_subtitle || 'Internet Stream',
-          url: appState.stream_url
-        };
-      }
+async function toggle(){
+if(playing){
+await fetch('/api/stop-stream',{method:'POST'});
+playing=false;
+document.getElementById("play").innerText="▶";
+}else{
+await fetch('/api/play-stream',{method:'POST'});
+playing=true;
+document.getElementById("play").innerText="❚❚";
+}
+}
 
-      if (!preset || !preset.url) return;
+/* ===== NEXT / PREV ===== */
+function next(){
+fetch('/api/next',{method:'POST'});
+}
+function prev(){
+fetch('/api/prev',{method:'POST'});
+}
 
-      try {
-        const res = await fetch('/api/play-stream', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            url: preset.url,
-            name: preset.name,
-            subtitle: preset.subtitle || 'Internet Stream'
-          })
-        });
+/* ===== VOLUME ===== */
+function setVol(v){
+document.getElementById("volVal").innerText=v;
+fetch('/api/volume',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({volume:v})
+});
+}
 
-        const data = await res.json();
-        if (data.status === 'playing') {
-          appState.playing = true;
-          appState.station_name = preset.name;
-          appState.station_subtitle = preset.subtitle || 'Internet Stream';
-          appState.stream_url = preset.url;
-          updateUiFromState();
-          loadNetworkStatus();
-        }
-      } catch (err) {
-        console.log('play failed', err);
-      }
-    }
+/* ===== LOAD STATUS ===== */
+async function load(){
+try{
+let s=await fetch('/api/state');
+let d=await s.json();
 
-    async function stopPlayback() {
-      try {
-        await fetch('/api/stop-stream', { method: 'POST' });
-        appState.playing = false;
-        updateUiFromState();
-        loadNetworkStatus();
-      } catch (err) {
-        console.log('stop failed', err);
-      }
-    }
+document.getElementById("name").innerText=d.station_name||"La Voix Divine";
 
-    async function togglePlayback() {
-      if (appState.playing) {
-        await stopPlayback();
-      } else {
-        await playCurrentPreset();
-      }
-    }
+if(d.playing){
+document.getElementById("status").innerText="● LIVE";
+document.getElementById("play").innerText="❚❚";
+playing=true;
+}else{
+document.getElementById("status").innerText="● STOPPED";
+document.getElementById("play").innerText="▶";
+playing=false;
+}
 
-    async function nextPreset() {
-      if (!appState.presets.length) return;
-      appState.preset_index = (appState.preset_index + 1) % appState.presets.length;
-      const preset = appState.presets[appState.preset_index];
-      appState.station_name = preset.name;
-      appState.station_subtitle = preset.subtitle || 'Internet Stream';
-      appState.stream_url = preset.url;
-      updateUiFromState();
-      await playCurrentPreset();
-    }
+document.getElementById("vol").value=d.volume||50;
+document.getElementById("volVal").innerText=d.volume||50;
 
-    async function prevPreset() {
-      if (!appState.presets.length) return;
-      appState.preset_index = (appState.preset_index - 1 + appState.presets.length) % appState.presets.length;
-      const preset = appState.presets[appState.preset_index];
-      appState.station_name = preset.name;
-      appState.station_subtitle = preset.subtitle || 'Internet Stream';
-      appState.stream_url = preset.url;
-      updateUiFromState();
-      await playCurrentPreset();
-    }
+let w=await fetch('/api/wifi-status');
+let wd=await w.json();
 
-    async function setVolume(value) {
-      const vol = parseInt(value, 10);
-      appState.volume = vol;
-      document.getElementById('mainVolume').value = vol;
-      document.getElementById('settingsVolume').value = vol;
-      document.getElementById('volumeValue').textContent = vol;
+document.getElementById("conn").innerText=
+wd.connected ? "Connected to "+wd.ssid : "No connection";
 
-      try {
-        await fetch('/api/volume', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ volume: vol })
-        });
-      } catch (err) {
-        console.log('volume failed', err);
-      }
-    }
+}catch(e){
+console.log(e);
+}
+}
 
-    function renderLibrary() {
-      const wrap = document.getElementById('libraryList');
-      if (!wrap) return;
+load();
+setInterval(load,5000);
 
-      if (!appState.presets.length) {
-        wrap.innerHTML = '<div class="device-row"><span>No stations found</span></div>';
-        return;
-      }
+</script>
 
-      wrap.innerHTML = '';
-      appState.presets.forEach((preset, index) => {
-        const row = document.createElement('button');
-        row.className = 'settings-row';
-        row.innerHTML = `
-          <div class="settings-left"><span>📻</span><span>${preset.name}</span></div>
-          <div class="settings-value">${index === appState.preset_index ? 'Selected' : 'Play ›'}</div>
-        `;
-        row.onclick = async () => {
-          appState.preset_index = index;
-          appState.station_name = preset.name;
-          appState.station_subtitle = preset.subtitle || 'Internet Stream';
-          appState.stream_url = preset.url;
-          updateUiFromState();
-          setActiveNav('radioPage');
-          showPage('radioPage');
-          await playCurrentPreset();
-        };
-        wrap.appendChild(row);
-      });
-    }
-
-    async function loadWifiStatus() {
-      try {
-        const res = await fetch('/api/wifi-status');
-        const data = await res.json();
-        document.getElementById('wifiSettingValue').textContent = `${data.ssid || 'Not connected'} ›`;
-        document.getElementById('connectionText').textContent = data.connected ? `Connected to ${data.ssid}` : 'Not connected';
-
-        const wrap = document.getElementById('wifiList');
-        const saved = data.saved_networks || [];
-        wrap.innerHTML = '';
-
-        const head = document.createElement('div');
-        head.className = 'device-row';
-        head.innerHTML = `<span class="muted">Connected network</span><span>${data.ssid || 'Not connected'}</span>`;
-        wrap.appendChild(head);
-
-        if (saved.length) {
-          saved.forEach(name => {
-            const row = document.createElement('div');
-            row.className = 'device-row';
-            row.innerHTML = `<span>${name}</span><button class="connect-btn">${name === data.ssid ? 'Connected' : 'Saved'}</button>`;
-            wrap.appendChild(row);
-          });
-        } else {
-          const row = document.createElement('div');
-          row.className = 'device-row';
-          row.innerHTML = `<span>No saved networks</span>`;
-          wrap.appendChild(row);
-        }
-      } catch (err) {
-        console.log('wifi status failed', err);
-      }
-    }
-
-    async function loadBluetoothStatus() {
-      try {
-        const res = await fetch('/api/bluetooth-status');
-        const data = await res.json();
-        document.getElementById('btSettingValue').textContent = `${data.powered ? 'On' : 'Off'} ›`;
-
-        const wrap = document.getElementById('btList');
-        wrap.innerHTML = '';
-
-        const head = document.createElement('div');
-        head.className = 'device-row';
-        head.innerHTML = `<span class="muted">Bluetooth</span><span>${data.powered ? 'On' : 'Off'}</span>`;
-        wrap.appendChild(head);
-
-        const devices = data.connected_devices || [];
-        if (devices.length) {
-          devices.forEach(dev => {
-            const row = document.createElement('div');
-            row.className = 'device-row';
-            row.innerHTML = `<span>${dev.name || dev.mac || 'Connected device'}</span><button class="connect-btn">Connected</button>`;
-            wrap.appendChild(row);
-          });
-        } else {
-          const row = document.createElement('div');
-          row.className = 'device-row';
-          row.innerHTML = `<span>No connected devices</span>`;
-          wrap.appendChild(row);
-        }
-      } catch (err) {
-        console.log('bluetooth status failed', err);
-      }
-    }
-
-    document.addEventListener('DOMContentLoaded', async () => {
-      await loadState();
-      await loadNetworkStatus();
-      await loadWifiStatus();
-      await loadBluetoothStatus();
-
-      setInterval(loadNetworkStatus, 5000);
-      setInterval(loadState, 10000);
-    });
-  </script>
 </body>
 </html>
