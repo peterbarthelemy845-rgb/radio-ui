@@ -1,279 +1,812 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Radio UI</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
 
-body{
-margin:0;
-font-family:Arial;
-color:white;
-background: radial-gradient(circle at top,#1e3a8a,#020617);
-overflow:hidden;
-}
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #020617;
+      color: white;
+    }
 
-/* ===== TOP BAR ===== */
+    body {
+      background:
+        radial-gradient(circle at top, rgba(59,130,246,0.45), rgba(2,6,23,0) 40%),
+        linear-gradient(180deg, #1237c8 0%, #152c7a 48%, #0b1530 100%);
+    }
 
-.top{
-position:absolute;
-top:10px;
-left:10px;
-right:10px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-}
+    button, input {
+      font-family: inherit;
+    }
 
-/* smaller icons */
-.top-icons{
-display:flex;
-gap:8px;
-}
+    .screen {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 50% 22%, rgba(70, 120, 255, 0.28) 0%, rgba(70,120,255,0.10) 22%, rgba(70,120,255,0) 44%),
+        radial-gradient(circle at 25% 38%, rgba(80, 130, 255, 0.16) 0%, rgba(80,130,255,0) 26%),
+        radial-gradient(circle at 78% 42%, rgba(100, 90, 255, 0.14) 0%, rgba(100,90,255,0) 22%);
+    }
 
-.icon-box{
-width:40px;
-height:40px;
-border-radius:10px;
-background:rgba(255,255,255,0.1);
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:16px;
-}
+    .page {
+      position: absolute;
+      inset: 0;
+      display: none;
+    }
 
-/* smaller connection text */
-.connection{
-position:absolute;
-top:60px;
-left:12px;
-font-size:14px;
-opacity:0.85;
-}
+    .page.active {
+      display: block;
+    }
 
-/* ===== CENTER CONTENT ===== */
+    .top-bar {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      right: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      z-index: 10;
+    }
 
-.center{
-position:absolute;
-top:120px;
-width:100%;
-text-align:center;
-}
+    .top-left {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
 
-.label{
-letter-spacing:3px;
-font-size:14px;
-opacity:0.7;
-}
+    .icon-box {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.95);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
+    }
 
-.title{
-font-size:32px;
-font-weight:bold;
-margin-top:10px;
-}
+    .icon-box.button {
+      border: none;
+      cursor: pointer;
+    }
 
-.url{
-font-size:16px;
-opacity:0.8;
-}
+    .connection {
+      position: absolute;
+      top: 68px;
+      left: 18px;
+      font-size: 14px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.9);
+      z-index: 10;
+    }
 
-.status{
-margin-top:10px;
-color:#ff5b5b;
-font-weight:bold;
-}
+    .radio-main {
+      position: absolute;
+      top: 150px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      padding: 0 18px 130px;
+    }
 
-/* ===== PLAYER ===== */
+    .stream-label {
+      font-size: 14px;
+      letter-spacing: 3px;
+      font-weight: 700;
+      color: rgba(220,235,255,0.82);
+      margin-bottom: 14px;
+    }
 
-.controls{
-margin-top:20px;
-display:flex;
-justify-content:center;
-align-items:center;
-gap:25px;
-}
+    .station-name {
+      font-size: 34px;
+      font-weight: 800;
+      line-height: 1.06;
+      margin-bottom: 8px;
+    }
 
-.btn{
-background:none;
-border:none;
-color:white;
-font-size:26px;
-}
+    .station-url {
+      font-size: 16px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.88);
+      margin-bottom: 16px;
+    }
 
-.play{
-width:70px;
-height:70px;
-border-radius:16px;
-background:linear-gradient(#3b82f6,#1d4ed8);
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:30px;
-}
+    .status-line {
+      font-size: 18px;
+      font-weight: 800;
+      color: #ff6b6b;
+      margin-bottom: 26px;
+    }
 
-/* ===== BOTTOM NAV ===== */
+    .controls {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 28px;
+    }
 
-.nav{
-position:absolute;
-bottom:10px;
-left:10px;
-right:10px;
-height:80px;
-border-radius:20px;
-background:rgba(255,255,255,0.1);
-display:flex;
-justify-content:space-around;
-align-items:center;
-font-size:14px;
-}
+    .control-btn {
+      width: 48px;
+      height: 48px;
+      border: none;
+      background: transparent;
+      color: #fff;
+      font-size: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
 
-.nav div{
-text-align:center;
-}
+    .play-btn {
+      width: 76px;
+      height: 76px;
+      border-radius: 18px;
+      border: none;
+      background: linear-gradient(180deg, #3ea8ff 0%, #216cff 100%);
+      color: #fff;
+      font-size: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 22px rgba(20,80,255,0.35);
+      cursor: pointer;
+    }
 
-.page{
-display:none;
-}
+    .bottom-nav {
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      bottom: 12px;
+      height: 82px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.10);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      z-index: 20;
+    }
 
-.active{
-display:block;
-}
+    .nav-item {
+      flex: 1;
+      height: 100%;
+      border: none;
+      background: transparent;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
 
-</style>
+    .nav-icon {
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .nav-item.active {
+      color: #9fd1ff;
+    }
+
+    .subpage {
+      position: absolute;
+      inset: 0;
+      padding: 18px 16px 104px;
+      overflow: hidden;
+    }
+
+    .subpage-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .back-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      border: none;
+      background: rgba(255,255,255,0.10);
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    .subpage-title {
+      font-size: 26px;
+      font-weight: 800;
+    }
+
+    .card-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: calc(100vh - 150px);
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .card-list::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .card-list::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.25);
+      border-radius: 999px;
+    }
+
+    .row {
+      min-height: 60px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.08);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 18px;
+      font-weight: 700;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    .row-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .row-value {
+      font-size: 16px;
+      color: rgba(255,255,255,0.9);
+    }
+
+    .muted {
+      color: rgba(255,255,255,0.8);
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .connect-btn {
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #3ea8ff 0%, #216cff 100%);
+      color: white;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+
+    .volume-card {
+      margin-top: 8px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.08);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
+      padding: 16px;
+    }
+
+    .volume-title {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .slider-row input[type="range"] {
+      flex: 1;
+      accent-color: #4ec1ff;
+    }
+
+    .volume-value {
+      min-width: 40px;
+      text-align: right;
+      font-size: 20px;
+      font-weight: 800;
+    }
+  </style>
 </head>
-
 <body>
+  <div class="screen">
 
-<!-- ===== RADIO PAGE ===== -->
-<div id="radio" class="active">
+    <!-- RADIO -->
+    <div id="radioPage" class="page active">
+      <div class="top-bar">
+        <div class="top-left">
+          <div class="icon-box" id="wifiBox">WiFi</div>
+          <div class="icon-box" id="btBox">BT</div>
+        </div>
+        <button class="icon-box button" onclick="showPage('soundPage')">Vol</button>
+      </div>
 
-<div class="top">
-  <div class="top-icons">
-    <div class="icon-box">WiFi</div>
-    <div class="icon-box">BT</div>
+      <div class="connection" id="connectionText">Connected...</div>
+
+      <div class="radio-main">
+        <div class="stream-label" id="stationSubtitle">INTERNET STREAM</div>
+        <div class="station-name" id="stationName">La Voix Divine</div>
+        <div class="station-url" id="stationUrl">radiolavoixdivine.com</div>
+        <div class="status-line" id="networkStatus">● NO NETWORK</div>
+
+        <div class="controls">
+          <button class="control-btn" onclick="prevPreset()">⏮</button>
+          <button class="play-btn" id="playBtn" onclick="togglePlayback()">▶</button>
+          <button class="control-btn" onclick="nextPreset()">⏭</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LIBRARY -->
+    <div id="libraryPage" class="page">
+      <div class="subpage">
+        <div class="subpage-header">
+          <button class="back-btn" onclick="showPage('radioPage')">‹</button>
+          <div class="subpage-title">Library</div>
+        </div>
+        <div class="card-list" id="libraryList">
+          <div class="row"><span>Loading stations...</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADS -->
+    <div id="adsPage" class="page">
+      <div class="subpage">
+        <div class="subpage-header">
+          <button class="back-btn" onclick="showPage('radioPage')">‹</button>
+          <div class="subpage-title">Ads</div>
+        </div>
+        <div class="card-list">
+          <div class="row"><span>Ad space ready</span></div>
+          <div class="row"><span>Promo area</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="settingsPage" class="page">
+      <div class="subpage">
+        <div class="subpage-header">
+          <button class="back-btn" onclick="showPage('radioPage')">‹</button>
+          <div class="subpage-title">Settings</div>
+        </div>
+
+        <div class="card-list">
+          <button class="row" onclick="showPage('wifiPage'); loadWifiStatus();">
+            <div class="row-left"><span>WiFi</span></div>
+            <div class="row-value" id="wifiSettingValue">Loading ›</div>
+          </button>
+
+          <button class="row" onclick="showPage('bluetoothPage'); loadBluetoothStatus();">
+            <div class="row-left"><span>BT</span></div>
+            <div class="row-value" id="btSettingValue">Loading ›</div>
+          </button>
+
+          <button class="row" onclick="showPage('soundPage')">
+            <div class="row-left"><span>Sound</span></div>
+            <div class="row-value" id="soundSettingValue">50 ›</div>
+          </button>
+
+          <div class="row">
+            <div class="row-left"><span>Contact Us</span></div>
+            <div class="row-value">radiolavoixdivine.com ›</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WIFI -->
+    <div id="wifiPage" class="page">
+      <div class="subpage">
+        <div class="subpage-header">
+          <button class="back-btn" onclick="showPage('settingsPage')">‹</button>
+          <div class="subpage-title">WiFi</div>
+        </div>
+        <div class="card-list" id="wifiList">
+          <div class="row"><span>Loading WiFi...</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BLUETOOTH -->
+    <div id="bluetoothPage" class="page">
+      <div class="subpage">
+        <div class="subpage-header">
+          <button class="back-btn" onclick="showPage('settingsPage')">‹</button>
+          <div class="subpage-title">Bluetooth</div>
+        </div>
+        <div class="card-list" id="btList">
+          <div class="row"><span>Loading Bluetooth...</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SOUND -->
+    <div id="soundPage" class="page">
+      <div class="subpage">
+        <div class="subpage-header">
+          <button class="back-btn" onclick="showPage('settingsPage')">‹</button>
+          <div class="subpage-title">Sound</div>
+        </div>
+
+        <div class="volume-card">
+          <div class="volume-title">Volume</div>
+          <div class="slider-row">
+            <span>🔉</span>
+            <input id="mainVolume" type="range" min="0" max="100" value="50" oninput="setVolume(this.value)" />
+            <span>🔊</span>
+            <div class="volume-value" id="volumeValue">50</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADD -->
+    <div id="addPage" class="page">
+      <div class="subpage">
+        <div class="subpage-header">
+          <button class="back-btn" onclick="showPage('radioPage')">‹</button>
+          <div class="subpage-title">Add</div>
+        </div>
+        <div class="card-list">
+          <div class="row"><span class="muted">Add new stream URL here later</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NAV -->
+    <div class="bottom-nav">
+      <button class="nav-item active" onclick="showPage('radioPage', this)">
+        <div class="nav-icon">R</div>
+        <div>Radio</div>
+      </button>
+      <button class="nav-item" onclick="showPage('libraryPage', this); renderLibrary();">
+        <div class="nav-icon">L</div>
+        <div>Library</div>
+      </button>
+      <button class="nav-item" onclick="showPage('adsPage', this)">
+        <div class="nav-icon">A</div>
+        <div>Ads</div>
+      </button>
+      <button class="nav-item" onclick="showPage('settingsPage', this); loadWifiStatus(); loadBluetoothStatus();">
+        <div class="nav-icon">S</div>
+        <div>Settings</div>
+      </button>
+      <button class="nav-item" onclick="showPage('addPage', this)">
+        <div class="nav-icon">+</div>
+        <div>Add</div>
+      </button>
+    </div>
   </div>
-  <div class="icon-box">Vol</div>
-</div>
 
-<div class="connection" id="conn">Connected...</div>
+  <script>
+    let appState = {
+      presets: [],
+      preset_index: 0,
+      volume: 50,
+      playing: false,
+      station_name: 'La Voix Divine',
+      station_subtitle: 'Internet Stream',
+      stream_url: ''
+    };
 
-<div class="center">
-  <div class="label">INTERNET STREAM</div>
-  <div class="title" id="name">La Voix Divine</div>
-  <div class="url">radiolavoixdivine.com</div>
-  <div class="status" id="status">● NO NETWORK</div>
+    function setActiveNav(pageId) {
+      const map = {
+        radioPage: 0,
+        libraryPage: 1,
+        adsPage: 2,
+        settingsPage: 3,
+        addPage: 4
+      };
+      document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+      if (map[pageId] !== undefined) {
+        document.querySelectorAll('.nav-item')[map[pageId]].classList.add('active');
+      }
+    }
 
-  <div class="controls">
-    <button class="btn" onclick="prev()">⏮</button>
-    <button class="play" onclick="toggle()" id="play">▶</button>
-    <button class="btn" onclick="next()">⏭</button>
-  </div>
-</div>
+    function showPage(pageId, navButton) {
+      document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+      document.getElementById(pageId).classList.add('active');
 
-</div>
+      if (navButton) {
+        document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+        navButton.classList.add('active');
+      } else {
+        setActiveNav(pageId);
+      }
+    }
 
-<!-- ===== SOUND PAGE ===== -->
-<div id="sound" class="page">
-<h2 style="padding:20px">Sound</h2>
+    function updateUiFromState() {
+      document.getElementById('stationName').textContent = appState.station_name || 'La Voix Divine';
+      document.getElementById('stationSubtitle').textContent = (appState.station_subtitle || 'Internet Stream').toUpperCase();
+      document.getElementById('stationUrl').textContent = 'radiolavoixdivine.com';
+      document.getElementById('playBtn').textContent = appState.playing ? '❚❚' : '▶';
 
-<div style="padding:20px">
-<input type="range" min="0" max="100" value="50" id="vol" oninput="setVol(this.value)">
-<span id="volVal">50</span>
-</div>
+      document.getElementById('mainVolume').value = appState.volume;
+      document.getElementById('volumeValue').textContent = appState.volume;
+      document.getElementById('soundSettingValue').textContent = appState.volume + ' ›';
+      renderLibrary();
+    }
 
-</div>
+    async function loadState() {
+      try {
+        const res = await fetch('/api/state');
+        const data = await res.json();
 
-<!-- ===== BT PAGE ===== -->
-<div id="bt" class="page">
-<h2 style="padding:20px">Bluetooth</h2>
-<div style="padding:20px">No devices</div>
-</div>
+        appState.presets = data.presets || [];
+        appState.preset_index = data.preset_index || 0;
+        appState.volume = typeof data.volume === 'number' ? data.volume : 50;
+        appState.station_name = data.station_name || 'La Voix Divine';
+        appState.station_subtitle = (data.playing && data.playing.station_subtitle) || 'Internet Stream';
+        appState.stream_url = data.stream_url || '';
+        appState.playing = !!(data.playing && data.playing.is_playing);
 
-<!-- ===== NAV ===== -->
-<div class="nav">
-<div onclick="show('radio')">Radio</div>
-<div>Library</div>
-<div>Ads</div>
-<div onclick="show('sound')">Settings</div>
-<div>Add</div>
-</div>
+        updateUiFromState();
+      } catch (e) {
+        console.log('state load failed', e);
+      }
+    }
 
-<script>
+    async function loadNetworkStatus() {
+      try {
+        const res = await fetch('/api/network-status');
+        const data = await res.json();
+        const label = document.getElementById('networkStatus');
 
-/* ===== PAGE NAV ===== */
-function show(p){
-document.querySelectorAll('.page,#radio').forEach(e=>e.classList.remove('active'));
-document.getElementById(p).classList.add('active');
-}
+        if (data.connected && data.playing) {
+          label.textContent = '● LIVE';
+          label.style.color = '#ff7272';
+        } else if (data.connected) {
+          label.textContent = '● STOPPED';
+          label.style.color = '#ffb366';
+        } else {
+          label.textContent = '● NO NETWORK';
+          label.style.color = '#ff5b5b';
+        }
+      } catch (e) {
+        console.log('network failed', e);
+      }
+    }
 
-/* ===== PLAY CONTROL ===== */
-let playing=false;
+    async function togglePlayback() {
+      try {
+        if (appState.playing) {
+          await fetch('/api/stop-stream', { method: 'POST' });
+          appState.playing = false;
+        } else {
+          let preset = appState.presets[appState.preset_index];
+          if (!preset && appState.stream_url) {
+            preset = {
+              name: appState.station_name,
+              subtitle: appState.station_subtitle,
+              url: appState.stream_url
+            };
+          }
+          if (!preset || !preset.url) return;
 
-async function toggle(){
-if(playing){
-await fetch('/api/stop-stream',{method:'POST'});
-playing=false;
-document.getElementById("play").innerText="▶";
-}else{
-await fetch('/api/play-stream',{method:'POST'});
-playing=true;
-document.getElementById("play").innerText="❚❚";
-}
-}
+          await fetch('/api/play-stream', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              url: preset.url,
+              name: preset.name,
+              subtitle: preset.subtitle || 'Internet Stream'
+            })
+          });
+          appState.playing = true;
+        }
 
-/* ===== NEXT / PREV ===== */
-function next(){
-fetch('/api/next',{method:'POST'});
-}
-function prev(){
-fetch('/api/prev',{method:'POST'});
-}
+        updateUiFromState();
+        loadNetworkStatus();
+      } catch (e) {
+        console.log('toggle failed', e);
+      }
+    }
 
-/* ===== VOLUME ===== */
-function setVol(v){
-document.getElementById("volVal").innerText=v;
-fetch('/api/volume',{
-method:'POST',
-headers:{'Content-Type':'application/json'},
-body:JSON.stringify({volume:v})
-});
-}
+    async function nextPreset() {
+      if (!appState.presets.length) return;
+      appState.preset_index = (appState.preset_index + 1) % appState.presets.length;
+      const preset = appState.presets[appState.preset_index];
+      appState.station_name = preset.name;
+      appState.station_subtitle = preset.subtitle || 'Internet Stream';
+      appState.stream_url = preset.url;
+      updateUiFromState();
+      await togglePlaybackIfNeeded(true);
+    }
 
-/* ===== LOAD STATUS ===== */
-async function load(){
-try{
-let s=await fetch('/api/state');
-let d=await s.json();
+    async function prevPreset() {
+      if (!appState.presets.length) return;
+      appState.preset_index = (appState.preset_index - 1 + appState.presets.length) % appState.presets.length;
+      const preset = appState.presets[appState.preset_index];
+      appState.station_name = preset.name;
+      appState.station_subtitle = preset.subtitle || 'Internet Stream';
+      appState.stream_url = preset.url;
+      updateUiFromState();
+      await togglePlaybackIfNeeded(true);
+    }
 
-document.getElementById("name").innerText=d.station_name||"La Voix Divine";
+    async function togglePlaybackIfNeeded(forcePlay) {
+      if (!forcePlay) return;
+      try {
+        const preset = appState.presets[appState.preset_index];
+        if (!preset || !preset.url) return;
 
-if(d.playing){
-document.getElementById("status").innerText="● LIVE";
-document.getElementById("play").innerText="❚❚";
-playing=true;
-}else{
-document.getElementById("status").innerText="● STOPPED";
-document.getElementById("play").innerText="▶";
-playing=false;
-}
+        await fetch('/api/play-stream', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            url: preset.url,
+            name: preset.name,
+            subtitle: preset.subtitle || 'Internet Stream'
+          })
+        });
+        appState.playing = true;
+        updateUiFromState();
+        loadNetworkStatus();
+      } catch (e) {
+        console.log('force play failed', e);
+      }
+    }
 
-document.getElementById("vol").value=d.volume||50;
-document.getElementById("volVal").innerText=d.volume||50;
+    async function setVolume(value) {
+      const vol = parseInt(value, 10);
+      appState.volume = vol;
+      document.getElementById('mainVolume').value = vol;
+      document.getElementById('volumeValue').textContent = vol;
+      document.getElementById('soundSettingValue').textContent = vol + ' ›';
 
-let w=await fetch('/api/wifi-status');
-let wd=await w.json();
+      try {
+        await fetch('/api/volume', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ volume: vol })
+        });
+      } catch (e) {
+        console.log('volume failed', e);
+      }
+    }
 
-document.getElementById("conn").innerText=
-wd.connected ? "Connected to "+wd.ssid : "No connection";
+    function renderLibrary() {
+      const wrap = document.getElementById('libraryList');
+      if (!wrap) return;
 
-}catch(e){
-console.log(e);
-}
-}
+      if (!appState.presets.length) {
+        wrap.innerHTML = '<div class="row"><span>No stations found</span></div>';
+        return;
+      }
 
-load();
-setInterval(load,5000);
+      wrap.innerHTML = '';
+      appState.presets.forEach((preset, index) => {
+        const row = document.createElement('button');
+        row.className = 'row';
+        row.innerHTML = `
+          <div class="row-left"><span>R</span><span>${preset.name}</span></div>
+          <div class="row-value">${index === appState.preset_index ? 'Selected' : 'Play ›'}</div>
+        `;
+        row.onclick = async () => {
+          appState.preset_index = index;
+          appState.station_name = preset.name;
+          appState.station_subtitle = preset.subtitle || 'Internet Stream';
+          appState.stream_url = preset.url;
+          updateUiFromState();
+          showPage('radioPage');
+          setActiveNav('radioPage');
+          await togglePlaybackIfNeeded(true);
+        };
+        wrap.appendChild(row);
+      });
+    }
 
-</script>
+    async function loadWifiStatus() {
+      try {
+        const res = await fetch('/api/wifi-status');
+        const data = await res.json();
 
+        const ssid = data && data.connected ? data.ssid : 'Not connected';
+        document.getElementById('wifiSettingValue').textContent = ssid + ' ›';
+        document.getElementById('connectionText').textContent = data && data.connected ? 'Connected to ' + data.ssid : 'No connection';
+
+        const wrap = document.getElementById('wifiList');
+        wrap.innerHTML = '';
+
+        const head = document.createElement('div');
+        head.className = 'row';
+        head.innerHTML = `<span class="muted">Connected network</span><span>${ssid}</span>`;
+        wrap.appendChild(head);
+
+        const saved = (data && data.saved_networks) || [];
+        if (saved.length) {
+          saved.forEach(name => {
+            const row = document.createElement('div');
+            row.className = 'row';
+            row.innerHTML = `<span>${name}</span><button class="connect-btn">${name === data.ssid ? 'Connected' : 'Saved'}</button>`;
+            wrap.appendChild(row);
+          });
+        } else {
+          const row = document.createElement('div');
+          row.className = 'row';
+          row.innerHTML = `<span>No saved networks</span>`;
+          wrap.appendChild(row);
+        }
+      } catch (e) {
+        console.log('wifi failed', e);
+      }
+    }
+
+    async function loadBluetoothStatus() {
+      try {
+        const res = await fetch('/api/bluetooth-status');
+        const data = await res.json();
+
+        document.getElementById('btSettingValue').textContent = `${data && data.powered ? 'On' : 'Off'} ›`;
+
+        const wrap = document.getElementById('btList');
+        wrap.innerHTML = '';
+
+        const head = document.createElement('div');
+        head.className = 'row';
+        head.innerHTML = `<span class="muted">Bluetooth</span><span>${data && data.powered ? 'On' : 'Off'}</span>`;
+        wrap.appendChild(head);
+
+        const devices = (data && data.connected_devices) || [];
+        if (devices.length) {
+          devices.forEach(dev => {
+            const row = document.createElement('div');
+            row.className = 'row';
+            row.innerHTML = `<span>${dev.name || dev.mac || 'Connected device'}</span><button class="connect-btn">Connected</button>`;
+            wrap.appendChild(row);
+          });
+        } else {
+          const row = document.createElement('div');
+          row.className = 'row';
+          row.innerHTML = `<span>No connected devices</span>`;
+          wrap.appendChild(row);
+        }
+      } catch (e) {
+        console.log('bluetooth failed', e);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await loadState();
+      await loadNetworkStatus();
+      await loadWifiStatus();
+      await loadBluetoothStatus();
+
+      setInterval(loadNetworkStatus, 5000);
+      setInterval(loadState, 10000);
+    });
+  </script>
 </body>
 </html>
