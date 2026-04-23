@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Radio UI</title>
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <style>
     * {
       box-sizing: border-box;
@@ -24,6 +23,10 @@
 
     body {
       overscroll-behavior: none;
+    }
+
+    button, input {
+      font-family: inherit;
     }
 
     .screen {
@@ -77,6 +80,7 @@
       box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
       border: none;
       color: white;
+      font-size: 34px;
     }
 
     .status-box {
@@ -85,11 +89,6 @@
 
     .volume-box {
       cursor: pointer;
-    }
-
-    .status-box .material-icons,
-    .volume-box .material-icons {
-      font-size: 34px;
     }
 
     .connection-text {
@@ -158,9 +157,6 @@
       display: flex;
       align-items: center;
       justify-content: center;
-    }
-
-    .control-btn .material-icons {
       font-size: 42px;
     }
 
@@ -176,9 +172,6 @@
       display: flex;
       align-items: center;
       justify-content: center;
-    }
-
-    .play-btn .material-icons {
       font-size: 46px;
     }
 
@@ -355,19 +348,16 @@
       margin-bottom: 18px;
     }
 
-    .sound-big .material-icons {
-      font-size: 36px;
-    }
-
-    .sound-big .slider-row {
-      max-width: none;
-    }
-
     .sound-value {
       font-size: 24px;
       font-weight: 800;
       min-width: 56px;
       text-align: right;
+    }
+
+    .disabled {
+      opacity: 0.5;
+      pointer-events: none;
     }
 
     @media (max-width: 600px) {
@@ -376,10 +366,6 @@
         width: 54px;
         height: 54px;
         border-radius: 12px;
-      }
-
-      .status-box .material-icons,
-      .volume-box .material-icons {
         font-size: 28px;
       }
 
@@ -421,9 +407,6 @@
       .control-btn {
         min-width: 46px;
         min-height: 46px;
-      }
-
-      .control-btn .material-icons {
         font-size: 30px;
       }
 
@@ -431,9 +414,6 @@
         width: 70px;
         height: 70px;
         border-radius: 16px;
-      }
-
-      .play-btn .material-icons {
         font-size: 34px;
       }
 
@@ -507,41 +487,27 @@
 </head>
 <body>
   <div class="screen">
-
     <div id="radioPage" class="page active">
       <div class="top-bar">
         <div class="top-left">
-          <div class="status-box" title="Wi-Fi status">
-            <span class="material-icons">wifi</span>
-          </div>
-          <div class="status-box" title="Bluetooth status">
-            <span class="material-icons">bluetooth</span>
-          </div>
+          <div class="status-box" id="wifiIconBox" title="Wi-Fi">📶</div>
+          <div class="status-box" id="btIconBox" title="Bluetooth">🅱</div>
         </div>
-
-        <button class="volume-box" title="Sound" onclick="showPage('soundPage')">
-          <span class="material-icons">volume_up</span>
-        </button>
+        <button class="volume-box" title="Sound" onclick="showPage('soundPage')">🔊</button>
       </div>
 
-      <div class="connection-text">Connected to Peter</div>
+      <div class="connection-text" id="connectionText">Connected to Peter</div>
 
       <div class="main-content">
-        <div class="stream-label">INTERNET STREAM</div>
-        <div class="station-name">La Voix Divine</div>
-        <div class="station-url">radiolavoixdivine.com</div>
-        <div class="status-line">● NO NETWORK</div>
+        <div class="stream-label" id="stationSubtitle">INTERNET STREAM</div>
+        <div class="station-name" id="stationName">La Voix Divine</div>
+        <div class="station-url" id="stationUrl">radiolavoixdivine.com</div>
+        <div class="status-line" id="networkStatus">● NO NETWORK</div>
 
         <div class="controls">
-          <button class="control-btn" aria-label="Previous">
-            <span class="material-icons">skip_previous</span>
-          </button>
-          <button class="play-btn" aria-label="Play">
-            <span class="material-icons">play_arrow</span>
-          </button>
-          <button class="control-btn" aria-label="Next">
-            <span class="material-icons">skip_next</span>
-          </button>
+          <button class="control-btn" aria-label="Previous" onclick="prevPreset()">⏮</button>
+          <button class="play-btn" id="playBtn" aria-label="Play" onclick="togglePlayback()">▶</button>
+          <button class="control-btn" aria-label="Next" onclick="nextPreset()">⏭</button>
         </div>
       </div>
     </div>
@@ -549,10 +515,8 @@
     <div id="libraryPage" class="page">
       <div class="settings-page">
         <div class="settings-title">Library</div>
-        <div class="settings-list">
-          <div class="device-row"><span>Saved Station 1</span></div>
-          <div class="device-row"><span>Saved Station 2</span></div>
-          <div class="device-row"><span>Saved Station 3</span></div>
+        <div class="settings-list" id="libraryList">
+          <div class="device-row"><span>Loading presets...</span></div>
         </div>
       </div>
     </div>
@@ -571,61 +535,40 @@
       <div class="settings-page">
         <div class="settings-title">Settings</div>
         <div class="settings-list">
-          <button class="settings-row" onclick="showPage('wifiPage')">
-            <div class="settings-left">
-              <span class="material-icons">wifi</span>
-              <span>Wi-Fi</span>
-            </div>
-            <div class="settings-value">Peter ›</div>
+          <button class="settings-row" onclick="showPage('wifiPage'); loadWifiStatus();">
+            <div class="settings-left"><span>📶</span><span>Wi-Fi</span></div>
+            <div class="settings-value" id="wifiSettingValue">Loading ›</div>
           </button>
 
-          <button class="settings-row" onclick="showPage('bluetoothPage')">
-            <div class="settings-left">
-              <span class="material-icons">bluetooth</span>
-              <span>Bluetooth</span>
-            </div>
-            <div class="settings-value">On ›</div>
+          <button class="settings-row" onclick="showPage('bluetoothPage'); loadBluetoothStatus();">
+            <div class="settings-left"><span>🅱</span><span>Bluetooth</span></div>
+            <div class="settings-value" id="btSettingValue">Loading ›</div>
           </button>
 
           <div class="settings-row">
-            <div class="settings-left">
-              <span class="material-icons">brightness_6</span>
-              <span>Display &amp; Brightness</span>
-            </div>
+            <div class="settings-left"><span>☀</span><span>Display &amp; Brightness</span></div>
             <div class="settings-value">Auto ›</div>
           </div>
 
           <button class="settings-row" onclick="showPage('soundPage')">
-            <div class="settings-left">
-              <span class="material-icons">volume_up</span>
-              <span>Sound</span>
-            </div>
+            <div class="settings-left"><span>🔊</span><span>Sound</span></div>
             <div class="slider-row">
-              <input id="settingsVolume" type="range" min="0" max="100" value="80" oninput="syncVolume(this.value)" />
+              <input id="settingsVolume" type="range" min="0" max="100" value="80" oninput="setVolume(this.value)" />
             </div>
           </button>
 
           <div class="settings-row">
-            <div class="settings-left">
-              <span class="material-icons">chat_bubble_outline</span>
-              <span>Contact Us</span>
-            </div>
+            <div class="settings-left"><span>💬</span><span>Contact Us</span></div>
             <div class="settings-value">radiolavoixdivine.com ›</div>
           </div>
 
           <div class="settings-row">
-            <div class="settings-left">
-              <span class="material-icons">restart_alt</span>
-              <span>Reboot</span>
-            </div>
+            <div class="settings-left"><span>↻</span><span>Reboot</span></div>
             <div class="settings-value">›</div>
           </div>
 
           <div class="settings-row">
-            <div class="settings-left">
-              <span class="material-icons">power_settings_new</span>
-              <span>Power Off</span>
-            </div>
+            <div class="settings-left"><span>⏻</span><span>Power Off</span></div>
             <div class="settings-value">›</div>
           </div>
         </div>
@@ -639,11 +582,8 @@
           <div class="subpage-title">Wi-Fi</div>
         </div>
 
-        <div class="subpage-card">
-          <div class="device-row"><span class="muted">Connected network</span><span>Peter</span></div>
-          <div class="device-row"><span>Peter</span><button class="connect-btn">Connected</button></div>
-          <div class="device-row"><span>Home WiFi</span><button class="connect-btn">Connect</button></div>
-          <div class="device-row"><span>Guest WiFi</span><button class="connect-btn">Connect</button></div>
+        <div class="subpage-card" id="wifiList">
+          <div class="device-row"><span>Loading Wi-Fi...</span></div>
         </div>
       </div>
     </div>
@@ -655,11 +595,8 @@
           <div class="subpage-title">Bluetooth</div>
         </div>
 
-        <div class="subpage-card">
-          <div class="device-row"><span class="muted">Bluetooth On</span><span>Yes</span></div>
-          <div class="device-row"><span>Amazon Plug 3578</span><button class="connect-btn">Connect</button></div>
-          <div class="device-row"><span>HP Color LJ 4301</span><button class="connect-btn">Connect</button></div>
-          <div class="device-row"><span>Zebra Speaker</span><button class="connect-btn">Connect</button></div>
+        <div class="subpage-card" id="btList">
+          <div class="device-row"><span>Loading Bluetooth...</span></div>
         </div>
       </div>
     </div>
@@ -674,9 +611,9 @@
         <div class="sound-big">
           <div class="sound-big-label">Volume</div>
           <div class="slider-row">
-            <span class="material-icons">volume_down</span>
-            <input id="mainVolume" type="range" min="0" max="100" value="80" oninput="syncVolume(this.value)" />
-            <span class="material-icons">volume_up</span>
+            <span>🔉</span>
+            <input id="mainVolume" type="range" min="0" max="100" value="80" oninput="setVolume(this.value)" />
+            <span>🔊</span>
             <div id="volumeValue" class="sound-value">80</div>
           </div>
         </div>
@@ -694,29 +631,53 @@
 
     <div class="bottom-nav">
       <button class="nav-item active" onclick="showPage('radioPage', this)">
-        <div class="nav-icon material-icons">radio</div>
+        <div class="nav-icon">📻</div>
         <div>Radio</div>
       </button>
-      <button class="nav-item" onclick="showPage('libraryPage', this)">
-        <div class="nav-icon material-icons">library_music</div>
+      <button class="nav-item" onclick="showPage('libraryPage', this); renderLibrary();">
+        <div class="nav-icon">🎵</div>
         <div>Library</div>
       </button>
       <button class="nav-item" onclick="showPage('adsPage', this)">
-        <div class="nav-icon material-icons">campaign</div>
+        <div class="nav-icon">📢</div>
         <div>Ads</div>
       </button>
-      <button class="nav-item" onclick="showPage('settingsPage', this)">
-        <div class="nav-icon material-icons">settings</div>
+      <button class="nav-item" onclick="showPage('settingsPage', this); loadWifiStatus(); loadBluetoothStatus();">
+        <div class="nav-icon">⚙</div>
         <div>Settings</div>
       </button>
       <button class="nav-item" onclick="showPage('addPage', this)">
-        <div class="nav-icon material-icons">add</div>
+        <div class="nav-icon">➕</div>
         <div>Add</div>
       </button>
     </div>
   </div>
 
   <script>
+    let appState = {
+      presets: [],
+      preset_index: 0,
+      volume: 80,
+      playing: false,
+      station_name: 'La Voix Divine',
+      station_subtitle: 'Internet Stream',
+      stream_url: ''
+    };
+
+    function setActiveNav(pageId) {
+      const map = {
+        radioPage: 0,
+        libraryPage: 1,
+        adsPage: 2,
+        settingsPage: 3,
+        addPage: 4
+      };
+      document.querySelectorAll('.bottom-nav .nav-item').forEach(btn => btn.classList.remove('active'));
+      if (map[pageId] !== undefined) {
+        document.querySelectorAll('.bottom-nav .nav-item')[map[pageId]].classList.add('active');
+      }
+    }
+
     function showPage(pageId, navButton) {
       document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
       document.getElementById(pageId).classList.add('active');
@@ -725,24 +686,266 @@
         document.querySelectorAll('.bottom-nav .nav-item').forEach(btn => btn.classList.remove('active'));
         navButton.classList.add('active');
       } else {
-        document.querySelectorAll('.bottom-nav .nav-item').forEach(btn => btn.classList.remove('active'));
-        if (pageId === 'radioPage') document.querySelectorAll('.bottom-nav .nav-item')[0].classList.add('active');
-        if (pageId === 'libraryPage') document.querySelectorAll('.bottom-nav .nav-item')[1].classList.add('active');
-        if (pageId === 'adsPage') document.querySelectorAll('.bottom-nav .nav-item')[2].classList.add('active');
-        if (pageId === 'settingsPage') document.querySelectorAll('.bottom-nav .nav-item')[3].classList.add('active');
-        if (pageId === 'addPage') document.querySelectorAll('.bottom-nav .nav-item')[4].classList.add('active');
+        setActiveNav(pageId);
       }
     }
 
-    function syncVolume(value) {
-      const main = document.getElementById('mainVolume');
-      const settings = document.getElementById('settingsVolume');
-      const label = document.getElementById('volumeValue');
+    function updateUiFromState() {
+      document.getElementById('stationName').textContent = appState.station_name || 'La Voix Divine';
+      document.getElementById('stationSubtitle').textContent = (appState.station_subtitle || 'Internet Stream').toUpperCase();
+      document.getElementById('stationUrl').textContent = 'radiolavoixdivine.com';
+      document.getElementById('playBtn').textContent = appState.playing ? '❚❚' : '▶';
 
-      if (main) main.value = value;
-      if (settings) settings.value = value;
-      if (label) label.textContent = value;
+      document.getElementById('mainVolume').value = appState.volume;
+      document.getElementById('settingsVolume').value = appState.volume;
+      document.getElementById('volumeValue').textContent = appState.volume;
+      renderLibrary();
     }
+
+    async function loadState() {
+      try {
+        const res = await fetch('/api/state');
+        const data = await res.json();
+
+        appState.presets = data.presets || [];
+        appState.preset_index = data.preset_index || 0;
+        appState.volume = typeof data.volume === 'number' ? data.volume : 80;
+        appState.station_name = data.station_name || 'La Voix Divine';
+        appState.station_subtitle = (data.playing && data.playing.station_subtitle) || 'Internet Stream';
+        appState.stream_url = data.stream_url || '';
+        appState.playing = !!(data.playing && data.playing.is_playing);
+
+        updateUiFromState();
+      } catch (err) {
+        console.log('state load failed', err);
+      }
+    }
+
+    async function loadNetworkStatus() {
+      try {
+        const res = await fetch('/api/network-status');
+        const data = await res.json();
+        const label = document.getElementById('networkStatus');
+
+        if (data.connected && data.playing) {
+          label.textContent = '● LIVE';
+          label.style.color = '#ff7272';
+        } else if (data.connected) {
+          label.textContent = '● STOPPED';
+          label.style.color = '#ffb366';
+        } else {
+          label.textContent = '● NO NETWORK';
+          label.style.color = '#ff5b5b';
+        }
+      } catch (err) {
+        console.log('network status failed', err);
+      }
+    }
+
+    async function playCurrentPreset() {
+      let preset = appState.presets[appState.preset_index];
+
+      if (!preset && appState.stream_url) {
+        preset = {
+          name: appState.station_name,
+          subtitle: appState.station_subtitle || 'Internet Stream',
+          url: appState.stream_url
+        };
+      }
+
+      if (!preset || !preset.url) return;
+
+      try {
+        const res = await fetch('/api/play-stream', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            url: preset.url,
+            name: preset.name,
+            subtitle: preset.subtitle || 'Internet Stream'
+          })
+        });
+
+        const data = await res.json();
+        if (data.status === 'playing') {
+          appState.playing = true;
+          appState.station_name = preset.name;
+          appState.station_subtitle = preset.subtitle || 'Internet Stream';
+          appState.stream_url = preset.url;
+          updateUiFromState();
+          loadNetworkStatus();
+        }
+      } catch (err) {
+        console.log('play failed', err);
+      }
+    }
+
+    async function stopPlayback() {
+      try {
+        await fetch('/api/stop-stream', { method: 'POST' });
+        appState.playing = false;
+        updateUiFromState();
+        loadNetworkStatus();
+      } catch (err) {
+        console.log('stop failed', err);
+      }
+    }
+
+    async function togglePlayback() {
+      if (appState.playing) {
+        await stopPlayback();
+      } else {
+        await playCurrentPreset();
+      }
+    }
+
+    async function nextPreset() {
+      if (!appState.presets.length) return;
+      appState.preset_index = (appState.preset_index + 1) % appState.presets.length;
+      const preset = appState.presets[appState.preset_index];
+      appState.station_name = preset.name;
+      appState.station_subtitle = preset.subtitle || 'Internet Stream';
+      appState.stream_url = preset.url;
+      updateUiFromState();
+      await playCurrentPreset();
+    }
+
+    async function prevPreset() {
+      if (!appState.presets.length) return;
+      appState.preset_index = (appState.preset_index - 1 + appState.presets.length) % appState.presets.length;
+      const preset = appState.presets[appState.preset_index];
+      appState.station_name = preset.name;
+      appState.station_subtitle = preset.subtitle || 'Internet Stream';
+      appState.stream_url = preset.url;
+      updateUiFromState();
+      await playCurrentPreset();
+    }
+
+    async function setVolume(value) {
+      const vol = parseInt(value, 10);
+      appState.volume = vol;
+      document.getElementById('mainVolume').value = vol;
+      document.getElementById('settingsVolume').value = vol;
+      document.getElementById('volumeValue').textContent = vol;
+
+      try {
+        await fetch('/api/volume', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ volume: vol })
+        });
+      } catch (err) {
+        console.log('volume failed', err);
+      }
+    }
+
+    function renderLibrary() {
+      const wrap = document.getElementById('libraryList');
+      if (!wrap) return;
+
+      if (!appState.presets.length) {
+        wrap.innerHTML = '<div class="device-row"><span>No stations found</span></div>';
+        return;
+      }
+
+      wrap.innerHTML = '';
+      appState.presets.forEach((preset, index) => {
+        const row = document.createElement('button');
+        row.className = 'settings-row';
+        row.innerHTML = `
+          <div class="settings-left"><span>📻</span><span>${preset.name}</span></div>
+          <div class="settings-value">${index === appState.preset_index ? 'Selected' : 'Play ›'}</div>
+        `;
+        row.onclick = async () => {
+          appState.preset_index = index;
+          appState.station_name = preset.name;
+          appState.station_subtitle = preset.subtitle || 'Internet Stream';
+          appState.stream_url = preset.url;
+          updateUiFromState();
+          setActiveNav('radioPage');
+          showPage('radioPage');
+          await playCurrentPreset();
+        };
+        wrap.appendChild(row);
+      });
+    }
+
+    async function loadWifiStatus() {
+      try {
+        const res = await fetch('/api/wifi-status');
+        const data = await res.json();
+        document.getElementById('wifiSettingValue').textContent = `${data.ssid || 'Not connected'} ›`;
+        document.getElementById('connectionText').textContent = data.connected ? `Connected to ${data.ssid}` : 'Not connected';
+
+        const wrap = document.getElementById('wifiList');
+        const saved = data.saved_networks || [];
+        wrap.innerHTML = '';
+
+        const head = document.createElement('div');
+        head.className = 'device-row';
+        head.innerHTML = `<span class="muted">Connected network</span><span>${data.ssid || 'Not connected'}</span>`;
+        wrap.appendChild(head);
+
+        if (saved.length) {
+          saved.forEach(name => {
+            const row = document.createElement('div');
+            row.className = 'device-row';
+            row.innerHTML = `<span>${name}</span><button class="connect-btn">${name === data.ssid ? 'Connected' : 'Saved'}</button>`;
+            wrap.appendChild(row);
+          });
+        } else {
+          const row = document.createElement('div');
+          row.className = 'device-row';
+          row.innerHTML = `<span>No saved networks</span>`;
+          wrap.appendChild(row);
+        }
+      } catch (err) {
+        console.log('wifi status failed', err);
+      }
+    }
+
+    async function loadBluetoothStatus() {
+      try {
+        const res = await fetch('/api/bluetooth-status');
+        const data = await res.json();
+        document.getElementById('btSettingValue').textContent = `${data.powered ? 'On' : 'Off'} ›`;
+
+        const wrap = document.getElementById('btList');
+        wrap.innerHTML = '';
+
+        const head = document.createElement('div');
+        head.className = 'device-row';
+        head.innerHTML = `<span class="muted">Bluetooth</span><span>${data.powered ? 'On' : 'Off'}</span>`;
+        wrap.appendChild(head);
+
+        const devices = data.connected_devices || [];
+        if (devices.length) {
+          devices.forEach(dev => {
+            const row = document.createElement('div');
+            row.className = 'device-row';
+            row.innerHTML = `<span>${dev.name || dev.mac || 'Connected device'}</span><button class="connect-btn">Connected</button>`;
+            wrap.appendChild(row);
+          });
+        } else {
+          const row = document.createElement('div');
+          row.className = 'device-row';
+          row.innerHTML = `<span>No connected devices</span>`;
+          wrap.appendChild(row);
+        }
+      } catch (err) {
+        console.log('bluetooth status failed', err);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await loadState();
+      await loadNetworkStatus();
+      await loadWifiStatus();
+      await loadBluetoothStatus();
+
+      setInterval(loadNetworkStatus, 5000);
+      setInterval(loadState, 10000);
+    });
   </script>
 </body>
 </html>
