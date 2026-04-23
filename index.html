@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Radio UI</title>
+
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
   <style>
     * {
       box-sizing: border-box;
@@ -75,6 +78,17 @@
       font-size: 30px;
       box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
       user-select: none;
+      border: none;
+      color: white;
+    }
+
+    .volume-box {
+      cursor: pointer;
+    }
+
+    .status-box .material-icons,
+    .volume-box .material-icons {
+      font-size: 34px;
     }
 
     .connection-text {
@@ -246,6 +260,17 @@
       padding-right: 4px;
     }
 
+    .settings-list::-webkit-scrollbar,
+    .subpage-card::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .settings-list::-webkit-scrollbar-thumb,
+    .subpage-card::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.28);
+      border-radius: 10px;
+    }
+
     .settings-row,
     .device-row {
       min-height: 78px;
@@ -321,12 +346,41 @@
       align-items: center;
       gap: 14px;
       width: 100%;
-      max-width: 260px;
+      max-width: 280px;
     }
 
     .slider-row input[type="range"] {
       flex: 1;
       accent-color: #4ec1ff;
+    }
+
+    .sound-big {
+      margin-top: 12px;
+      padding: 18px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.08);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
+    }
+
+    .sound-big-label {
+      font-size: 26px;
+      font-weight: 800;
+      margin-bottom: 18px;
+    }
+
+    .sound-big .material-icons {
+      font-size: 36px;
+    }
+
+    .sound-big .slider-row {
+      max-width: none;
+    }
+
+    .sound-value {
+      font-size: 24px;
+      font-weight: 800;
+      min-width: 56px;
+      text-align: right;
     }
 
     @media (max-width: 600px) {
@@ -336,6 +390,11 @@
         height: 54px;
         font-size: 24px;
         border-radius: 12px;
+      }
+
+      .status-box .material-icons,
+      .volume-box .material-icons {
+        font-size: 28px;
       }
 
       .connection-text {
@@ -453,6 +512,14 @@
         font-size: 14px;
         padding: 10px 12px;
       }
+
+      .sound-big-label {
+        font-size: 22px;
+      }
+
+      .sound-value {
+        font-size: 20px;
+      }
     }
   </style>
 </head>
@@ -462,10 +529,17 @@
     <div id="radioPage" class="page active">
       <div class="top-bar">
         <div class="top-left">
-          <div class="status-box">📶</div>
-          <div class="status-box">🅱️</div>
+          <div class="status-box" title="Wi-Fi status">
+            <span class="material-icons">wifi</span>
+          </div>
+          <div class="status-box" title="Bluetooth status">
+            <span class="material-icons">bluetooth</span>
+          </div>
         </div>
-        <div class="volume-box">🔊</div>
+
+        <button class="volume-box" title="Sound" onclick="showPage('soundPage')">
+          <span class="material-icons">volume_up</span>
+        </button>
       </div>
 
       <div class="connection-text">Connected to Peter</div>
@@ -480,9 +554,15 @@
         <div class="status-line">● NO NETWORK</div>
 
         <div class="controls">
-          <button class="control-btn">⏮</button>
-          <button class="play-btn">▶</button>
-          <button class="control-btn">⏭</button>
+          <button class="control-btn" aria-label="Previous">
+            <span class="material-icons">skip_previous</span>
+          </button>
+          <button class="play-btn" aria-label="Play">
+            <span class="material-icons">play_arrow</span>
+          </button>
+          <button class="control-btn" aria-label="Next">
+            <span class="material-icons">skip_next</span>
+          </button>
         </div>
       </div>
     </div>
@@ -513,39 +593,60 @@
         <div class="settings-title">Settings</div>
         <div class="settings-list">
           <button class="settings-row" onclick="showPage('wifiPage')">
-            <div class="settings-left"><span>📶</span><span>Wi-Fi</span></div>
+            <div class="settings-left">
+              <span class="material-icons">wifi</span>
+              <span>Wi-Fi</span>
+            </div>
             <div class="settings-value">Peter ›</div>
           </button>
 
           <button class="settings-row" onclick="showPage('bluetoothPage')">
-            <div class="settings-left"><span>🅱️</span><span>Bluetooth</span></div>
+            <div class="settings-left">
+              <span class="material-icons">bluetooth</span>
+              <span>Bluetooth</span>
+            </div>
             <div class="settings-value">On ›</div>
           </button>
 
           <div class="settings-row">
-            <div class="settings-left"><span>🔆</span><span>Display &amp; Brightness</span></div>
+            <div class="settings-left">
+              <span class="material-icons">brightness_6</span>
+              <span>Display &amp; Brightness</span>
+            </div>
             <div class="settings-value">Auto ›</div>
           </div>
 
-          <div class="settings-row">
-            <div class="settings-left"><span>🔊</span><span>Sound</span></div>
-            <div class="slider-row">
-              <input type="range" min="0" max="100" value="80" />
+          <button class="settings-row" onclick="showPage('soundPage')">
+            <div class="settings-left">
+              <span class="material-icons">volume_up</span>
+              <span>Sound</span>
             </div>
-          </div>
+            <div class="slider-row">
+              <input id="settingsVolume" type="range" min="0" max="100" value="80" oninput="syncVolume(this.value)" />
+            </div>
+          </button>
 
           <div class="settings-row">
-            <div class="settings-left"><span>💬</span><span>Contact Us</span></div>
+            <div class="settings-left">
+              <span class="material-icons">chat_bubble_outline</span>
+              <span>Contact Us</span>
+            </div>
             <div class="settings-value">radiolavoixdivine.com ›</div>
           </div>
 
           <div class="settings-row">
-            <div class="settings-left"><span>↻</span><span>Reboot</span></div>
+            <div class="settings-left">
+              <span class="material-icons">restart_alt</span>
+              <span>Reboot</span>
+            </div>
             <div class="settings-value">›</div>
           </div>
 
           <div class="settings-row">
-            <div class="settings-left"><span>⏻</span><span>Power Off</span></div>
+            <div class="settings-left">
+              <span class="material-icons">power_settings_new</span>
+              <span>Power Off</span>
+            </div>
             <div class="settings-value">›</div>
           </div>
         </div>
@@ -584,6 +685,25 @@
       </div>
     </div>
 
+    <div id="soundPage" class="page">
+      <div class="subpage">
+        <div class="subpage-header">
+          <button class="back-btn" onclick="showPage('settingsPage')">‹</button>
+          <div class="subpage-title">Sound</div>
+        </div>
+
+        <div class="sound-big">
+          <div class="sound-big-label">Volume</div>
+          <div class="slider-row">
+            <span class="material-icons">volume_down</span>
+            <input id="mainVolume" type="range" min="0" max="100" value="80" oninput="syncVolume(this.value)" />
+            <span class="material-icons">volume_up</span>
+            <div id="volumeValue" class="sound-value">80</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div id="addPage" class="page">
       <div class="settings-page">
         <div class="settings-title">Add Station</div>
@@ -595,23 +715,23 @@
 
     <div class="bottom-nav">
       <button class="nav-item active" onclick="showPage('radioPage', this)">
-        <div class="nav-icon">📻</div>
+        <div class="nav-icon material-icons">radio</div>
         <div>Radio</div>
       </button>
       <button class="nav-item" onclick="showPage('libraryPage', this)">
-        <div class="nav-icon">🎵</div>
+        <div class="nav-icon material-icons">library_music</div>
         <div>Library</div>
       </button>
       <button class="nav-item" onclick="showPage('adsPage', this)">
-        <div class="nav-icon">📢</div>
+        <div class="nav-icon material-icons">campaign</div>
         <div>Ads</div>
       </button>
       <button class="nav-item" onclick="showPage('settingsPage', this)">
-        <div class="nav-icon">⚙️</div>
+        <div class="nav-icon material-icons">settings</div>
         <div>Settings</div>
       </button>
       <button class="nav-item" onclick="showPage('addPage', this)">
-        <div class="nav-icon">➕</div>
+        <div class="nav-icon material-icons">add</div>
         <div>Add</div>
       </button>
     </div>
@@ -625,7 +745,24 @@
       if (navButton) {
         document.querySelectorAll('.bottom-nav .nav-item').forEach(btn => btn.classList.remove('active'));
         navButton.classList.add('active');
+      } else {
+        document.querySelectorAll('.bottom-nav .nav-item').forEach(btn => btn.classList.remove('active'));
+        if (pageId === 'radioPage') document.querySelectorAll('.bottom-nav .nav-item')[0].classList.add('active');
+        if (pageId === 'libraryPage') document.querySelectorAll('.bottom-nav .nav-item')[1].classList.add('active');
+        if (pageId === 'adsPage') document.querySelectorAll('.bottom-nav .nav-item')[2].classList.add('active');
+        if (pageId === 'settingsPage') document.querySelectorAll('.bottom-nav .nav-item')[3].classList.add('active');
+        if (pageId === 'addPage') document.querySelectorAll('.bottom-nav .nav-item')[4].classList.add('active');
       }
+    }
+
+    function syncVolume(value) {
+      const main = document.getElementById('mainVolume');
+      const settings = document.getElementById('settingsVolume');
+      const label = document.getElementById('volumeValue');
+
+      if (main) main.value = value;
+      if (settings) settings.value = value;
+      if (label) label.textContent = value;
     }
   </script>
 </body>
