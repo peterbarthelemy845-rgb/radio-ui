@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=480, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Radio UI</title>
   <style>
     * {
@@ -11,9 +11,9 @@
     }
 
     html, body {
-      margin: 0;
       width: 100%;
       height: 100%;
+      margin: 0;
       overflow: hidden;
       font-family: Arial, Helvetica, sans-serif;
       background: #050816;
@@ -21,21 +21,19 @@
     }
 
     body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      overscroll-behavior: none;
     }
 
     .screen {
       position: relative;
-      width: 480px;
-      height: 480px;
+      width: 100vw;
+      height: 100vh;
       overflow: hidden;
       background:
-        radial-gradient(circle at 50% 22%, rgba(46, 104, 255, 0.55) 0%, rgba(46, 104, 255, 0.15) 18%, rgba(46, 104, 255, 0) 36%),
-        radial-gradient(circle at 18% 38%, rgba(65, 105, 255, 0.28) 0%, rgba(65, 105, 255, 0) 28%),
-        radial-gradient(circle at 82% 40%, rgba(95, 85, 255, 0.18) 0%, rgba(95, 85, 255, 0) 25%),
-        linear-gradient(180deg, #0b2fb9 0%, #112e9a 20%, #18276f 52%, #131f53 100%);
+        radial-gradient(circle at 50% 18%, rgba(46, 104, 255, 0.55) 0%, rgba(46, 104, 255, 0.18) 18%, rgba(46, 104, 255, 0) 38%),
+        radial-gradient(circle at 20% 40%, rgba(65, 105, 255, 0.24) 0%, rgba(65, 105, 255, 0) 28%),
+        radial-gradient(circle at 82% 42%, rgba(95, 85, 255, 0.15) 0%, rgba(95, 85, 255, 0) 24%),
+        linear-gradient(180deg, #0b2fb9 0%, #112e9a 22%, #18276f 52%, #131f53 100%);
     }
 
     .page {
@@ -50,146 +48,152 @@
 
     .top-bar {
       position: absolute;
-      top: 14px;
-      left: 14px;
-      right: 14px;
+      top: 18px;
+      left: 18px;
+      right: 18px;
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      z-index: 10;
+      z-index: 20;
     }
 
     .top-left {
       display: flex;
-      gap: 10px;
+      gap: 12px;
       align-items: center;
     }
 
     .status-box,
     .volume-box {
-      width: 56px;
-      height: 56px;
-      border-radius: 12px;
+      width: 72px;
+      height: 72px;
+      border-radius: 16px;
       background: rgba(255, 255, 255, 0.08);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 28px;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+      font-size: 30px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
+      user-select: none;
     }
 
     .connection-text {
       position: absolute;
-      top: 78px;
-      left: 18px;
-      font-size: 16px;
+      top: 102px;
+      left: 22px;
+      font-size: 22px;
       font-weight: 700;
-      color: rgba(255,255,255,0.95);
-      z-index: 10;
+      color: rgba(255,255,255,0.96);
+      z-index: 20;
     }
 
     .main-content {
       position: absolute;
-      top: 86px;
+      top: 120px;
       left: 0;
       right: 0;
       text-align: center;
-      padding: 0 20px;
+      padding: 0 28px 150px;
+    }
+
+    .radio-circle-wrap {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 26px;
     }
 
     .radio-circle {
-      width: 170px;
-      height: 170px;
-      margin: 0 auto 18px auto;
+      width: 250px;
+      height: 250px;
       border-radius: 50%;
       background:
-        radial-gradient(circle at 35% 35%, #2f8cff 0%, #2875ff 38%, #1d45e0 72%, #0f2ca9 100%);
+        radial-gradient(circle at 35% 35%, #2f8cff 0%, #2875ff 40%, #1d45e0 72%, #0f2ca9 100%);
       display: flex;
       align-items: center;
       justify-content: center;
       box-shadow:
-        0 0 0 12px rgba(45, 106, 255, 0.12),
-        0 0 0 26px rgba(45, 106, 255, 0.08);
+        0 0 0 18px rgba(45, 106, 255, 0.10),
+        0 0 0 38px rgba(45, 106, 255, 0.06);
     }
 
     .radio-circle span {
-      font-size: 26px;
+      font-size: 42px;
       font-weight: 700;
       letter-spacing: 1px;
     }
 
     .stream-label {
-      font-size: 13px;
+      font-size: 18px;
       font-weight: 700;
-      letter-spacing: 3px;
-      color: rgba(210, 235, 255, 0.8);
-      margin-bottom: 8px;
+      letter-spacing: 4px;
+      color: rgba(210, 235, 255, 0.78);
+      margin-bottom: 10px;
     }
 
     .station-name {
-      font-size: 26px;
+      font-size: 48px;
       font-weight: 800;
-      line-height: 1.1;
-      margin-bottom: 4px;
+      line-height: 1.05;
+      margin-bottom: 8px;
     }
 
     .station-url {
-      font-size: 14px;
+      font-size: 22px;
       font-weight: 700;
       color: rgba(255,255,255,0.88);
-      margin-bottom: 12px;
+      margin-bottom: 16px;
     }
 
     .status-line {
-      font-size: 16px;
+      font-size: 24px;
       font-weight: 800;
       color: #ff5b5b;
-      margin-bottom: 18px;
+      margin-bottom: 24px;
     }
 
     .controls {
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 18px;
-      margin-bottom: 0;
+      gap: 28px;
     }
 
     .control-btn {
       border: none;
-      cursor: pointer;
-      color: #fff;
       background: transparent;
-      font-size: 30px;
-      min-width: 46px;
-      min-height: 46px;
+      color: #fff;
+      font-size: 42px;
+      min-width: 64px;
+      min-height: 64px;
+      cursor: pointer;
     }
 
     .play-btn {
-      width: 66px;
-      height: 66px;
-      border-radius: 16px;
+      width: 88px;
+      height: 88px;
+      border-radius: 20px;
       border: none;
       cursor: pointer;
-      font-size: 30px;
+      font-size: 40px;
       color: white;
       background: linear-gradient(180deg, #37a1ff 0%, #246cff 100%);
-      box-shadow: 0 8px 20px rgba(21, 87, 255, 0.45);
+      box-shadow: 0 8px 20px rgba(21, 87, 255, 0.40);
     }
 
     .bottom-nav {
       position: absolute;
-      left: 14px;
-      right: 14px;
-      bottom: 12px;
-      height: 82px;
-      border-radius: 18px;
+      left: 18px;
+      right: 18px;
+      bottom: 14px;
+      height: 110px;
+      border-radius: 24px;
       background: rgba(255,255,255,0.10);
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
       display: flex;
       align-items: center;
       justify-content: space-around;
-      z-index: 20;
+      z-index: 30;
     }
 
     .nav-item {
@@ -202,14 +206,14 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      font-size: 13px;
+      gap: 8px;
+      font-size: 18px;
       font-weight: 700;
       cursor: pointer;
     }
 
     .nav-icon {
-      font-size: 24px;
+      font-size: 34px;
       line-height: 1;
     }
 
@@ -217,35 +221,42 @@
       color: #9dd0ff;
     }
 
-    .settings-page {
-      padding: 18px 16px 102px 16px;
+    .settings-page,
+    .subpage {
+      position: absolute;
+      inset: 0;
+      padding: 24px 20px 136px;
+      overflow: hidden;
     }
 
-    .settings-title {
-      font-size: 34px;
+    .settings-title,
+    .subpage-title {
+      font-size: 42px;
       font-weight: 800;
-      margin: 6px 0 16px 4px;
+      margin: 0 0 18px 4px;
     }
 
-    .settings-list {
+    .settings-list,
+    .subpage-card {
       display: flex;
       flex-direction: column;
       gap: 12px;
-      max-height: 340px;
+      height: calc(100vh - 210px);
       overflow-y: auto;
       padding-right: 4px;
     }
 
-    .settings-row {
-      min-height: 64px;
-      border-radius: 16px;
+    .settings-row,
+    .device-row {
+      min-height: 78px;
+      border-radius: 18px;
       background: rgba(255,255,255,0.08);
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 18px;
-      font-size: 20px;
+      padding: 0 20px;
+      font-size: 24px;
       font-weight: 700;
       border: none;
       color: white;
@@ -259,57 +270,33 @@
     }
 
     .settings-value {
-      font-size: 18px;
-      color: rgba(255,255,255,0.9);
-    }
-
-    .subpage {
-      padding: 18px 16px 102px 16px;
+      font-size: 22px;
+      color: rgba(255,255,255,0.92);
     }
 
     .subpage-header {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
       margin-bottom: 18px;
     }
 
     .back-btn {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
+      width: 58px;
+      height: 58px;
+      border-radius: 14px;
       border: none;
       background: rgba(255,255,255,0.10);
       color: white;
-      font-size: 24px;
-      cursor: pointer;
-    }
-
-    .subpage-title {
       font-size: 30px;
-      font-weight: 800;
-    }
-
-    .subpage-card {
-      border-radius: 18px;
-      background: rgba(255,255,255,0.08);
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
-      padding: 16px;
+      cursor: pointer;
+      flex: 0 0 auto;
     }
 
     .device-row {
-      min-height: 56px;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      font-size: 18px;
-      font-weight: 700;
-    }
-
-    .device-row:last-child {
-      border-bottom: none;
+      min-height: 70px;
+      font-size: 22px;
+      cursor: default;
     }
 
     .connect-btn {
@@ -317,15 +304,15 @@
       border-radius: 12px;
       background: linear-gradient(180deg, #37a1ff 0%, #246cff 100%);
       color: white;
-      font-size: 14px;
+      font-size: 16px;
       font-weight: 700;
-      padding: 10px 12px;
+      padding: 10px 14px;
       cursor: pointer;
     }
 
     .muted {
       color: rgba(255,255,255,0.78);
-      font-size: 16px;
+      font-size: 20px;
       font-weight: 700;
     }
 
@@ -334,11 +321,138 @@
       align-items: center;
       gap: 14px;
       width: 100%;
+      max-width: 260px;
     }
 
     .slider-row input[type="range"] {
       flex: 1;
       accent-color: #4ec1ff;
+    }
+
+    @media (max-width: 600px) {
+      .status-box,
+      .volume-box {
+        width: 54px;
+        height: 54px;
+        font-size: 24px;
+        border-radius: 12px;
+      }
+
+      .connection-text {
+        top: 82px;
+        left: 18px;
+        font-size: 16px;
+      }
+
+      .main-content {
+        top: 92px;
+        padding: 0 18px 112px;
+      }
+
+      .radio-circle {
+        width: 170px;
+        height: 170px;
+        box-shadow:
+          0 0 0 12px rgba(45, 106, 255, 0.10),
+          0 0 0 26px rgba(45, 106, 255, 0.06);
+      }
+
+      .radio-circle span {
+        font-size: 26px;
+      }
+
+      .stream-label {
+        font-size: 13px;
+        letter-spacing: 3px;
+      }
+
+      .station-name {
+        font-size: 26px;
+      }
+
+      .station-url {
+        font-size: 14px;
+      }
+
+      .status-line {
+        font-size: 16px;
+        margin-bottom: 18px;
+      }
+
+      .controls {
+        gap: 18px;
+      }
+
+      .control-btn {
+        font-size: 30px;
+        min-width: 46px;
+        min-height: 46px;
+      }
+
+      .play-btn {
+        width: 66px;
+        height: 66px;
+        font-size: 30px;
+        border-radius: 16px;
+      }
+
+      .bottom-nav {
+        left: 14px;
+        right: 14px;
+        bottom: 12px;
+        height: 82px;
+        border-radius: 18px;
+      }
+
+      .nav-item {
+        gap: 6px;
+        font-size: 13px;
+      }
+
+      .nav-icon {
+        font-size: 24px;
+      }
+
+      .settings-page,
+      .subpage {
+        padding: 18px 16px 102px;
+      }
+
+      .settings-title,
+      .subpage-title {
+        font-size: 34px;
+        margin-bottom: 16px;
+      }
+
+      .settings-list,
+      .subpage-card {
+        height: calc(100vh - 170px);
+      }
+
+      .settings-row,
+      .device-row {
+        min-height: 64px;
+        border-radius: 16px;
+        padding: 0 18px;
+        font-size: 20px;
+      }
+
+      .settings-value,
+      .muted {
+        font-size: 18px;
+      }
+
+      .back-btn {
+        width: 48px;
+        height: 48px;
+        font-size: 24px;
+        border-radius: 12px;
+      }
+
+      .connect-btn {
+        font-size: 14px;
+        padding: 10px 12px;
+      }
     }
   </style>
 </head>
@@ -348,25 +462,27 @@
     <div id="radioPage" class="page active">
       <div class="top-bar">
         <div class="top-left">
-          <div class="status-box" title="Wi-Fi status">📶</div>
-          <div class="status-box" title="Bluetooth status">🅱️</div>
+          <div class="status-box">📶</div>
+          <div class="status-box">🅱️</div>
         </div>
-        <div class="volume-box" title="Volume">🔊</div>
+        <div class="volume-box">🔊</div>
       </div>
 
       <div class="connection-text">Connected to Peter</div>
 
       <div class="main-content">
-        <div class="radio-circle"><span>RADIO</span></div>
+        <div class="radio-circle-wrap">
+          <div class="radio-circle"><span>RADIO</span></div>
+        </div>
         <div class="stream-label">INTERNET STREAM</div>
         <div class="station-name">La Voix Divine</div>
         <div class="station-url">radiolavoixdivine.com</div>
         <div class="status-line">● NO NETWORK</div>
 
         <div class="controls">
-          <button class="control-btn" aria-label="Previous">⏮</button>
-          <button class="play-btn" aria-label="Play">▶</button>
-          <button class="control-btn" aria-label="Next">⏭</button>
+          <button class="control-btn">⏮</button>
+          <button class="play-btn">▶</button>
+          <button class="control-btn">⏭</button>
         </div>
       </div>
     </div>
@@ -374,7 +490,7 @@
     <div id="libraryPage" class="page">
       <div class="settings-page">
         <div class="settings-title">Library</div>
-        <div class="subpage-card">
+        <div class="settings-list">
           <div class="device-row"><span>Saved Station 1</span></div>
           <div class="device-row"><span>Saved Station 2</span></div>
           <div class="device-row"><span>Saved Station 3</span></div>
@@ -385,7 +501,7 @@
     <div id="adsPage" class="page">
       <div class="settings-page">
         <div class="settings-title">Ads</div>
-        <div class="subpage-card">
+        <div class="settings-list">
           <div class="device-row"><span>Ad space ready</span></div>
           <div class="device-row"><span>Promo area</span></div>
         </div>
@@ -471,7 +587,7 @@
     <div id="addPage" class="page">
       <div class="settings-page">
         <div class="settings-title">Add Station</div>
-        <div class="subpage-card">
+        <div class="settings-list">
           <div class="device-row"><span class="muted">Add new stream URL here later</span></div>
         </div>
       </div>
