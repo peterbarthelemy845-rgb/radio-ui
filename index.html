@@ -4,13 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Radio UI</title>
-
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
   <style>
     * {
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
+      user-select: none;
     }
 
     html, body {
@@ -33,9 +32,9 @@
       height: 100vh;
       overflow: hidden;
       background:
-        radial-gradient(circle at 50% 18%, rgba(46, 104, 255, 0.55) 0%, rgba(46, 104, 255, 0.18) 18%, rgba(46, 104, 255, 0) 38%),
-        radial-gradient(circle at 20% 40%, rgba(65, 105, 255, 0.24) 0%, rgba(65, 105, 255, 0) 28%),
-        radial-gradient(circle at 82% 42%, rgba(95, 85, 255, 0.15) 0%, rgba(95, 85, 255, 0) 24%),
+        radial-gradient(circle at 50% 20%, rgba(46, 104, 255, 0.42) 0%, rgba(46, 104, 255, 0.14) 18%, rgba(46, 104, 255, 0) 40%),
+        radial-gradient(circle at 20% 40%, rgba(65, 105, 255, 0.22) 0%, rgba(65, 105, 255, 0) 28%),
+        radial-gradient(circle at 82% 42%, rgba(95, 85, 255, 0.14) 0%, rgba(95, 85, 255, 0) 24%),
         linear-gradient(180deg, #0b2fb9 0%, #112e9a 22%, #18276f 52%, #131f53 100%);
     }
 
@@ -75,11 +74,13 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 30px;
       box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
-      user-select: none;
       border: none;
       color: white;
+    }
+
+    .status-box {
+      pointer-events: none;
     }
 
     .volume-box {
@@ -103,38 +104,11 @@
 
     .main-content {
       position: absolute;
-      top: 120px;
+      top: 170px;
       left: 0;
       right: 0;
       text-align: center;
       padding: 0 28px 150px;
-    }
-
-    .radio-circle-wrap {
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      margin-bottom: 26px;
-    }
-
-    .radio-circle {
-      width: 250px;
-      height: 250px;
-      border-radius: 50%;
-      background:
-        radial-gradient(circle at 35% 35%, #2f8cff 0%, #2875ff 40%, #1d45e0 72%, #0f2ca9 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow:
-        0 0 0 18px rgba(45, 106, 255, 0.10),
-        0 0 0 38px rgba(45, 106, 255, 0.06);
-    }
-
-    .radio-circle span {
-      font-size: 42px;
-      font-weight: 700;
-      letter-spacing: 1px;
     }
 
     .stream-label {
@@ -142,28 +116,28 @@
       font-weight: 700;
       letter-spacing: 4px;
       color: rgba(210, 235, 255, 0.78);
-      margin-bottom: 10px;
+      margin-bottom: 14px;
     }
 
     .station-name {
-      font-size: 48px;
+      font-size: 54px;
       font-weight: 800;
       line-height: 1.05;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
 
     .station-url {
-      font-size: 22px;
+      font-size: 24px;
       font-weight: 700;
       color: rgba(255,255,255,0.88);
-      margin-bottom: 16px;
+      margin-bottom: 18px;
     }
 
     .status-line {
-      font-size: 24px;
+      font-size: 26px;
       font-weight: 800;
       color: #ff5b5b;
-      margin-bottom: 24px;
+      margin-bottom: 30px;
     }
 
     .controls {
@@ -171,28 +145,41 @@
       justify-content: center;
       align-items: center;
       gap: 28px;
+      margin-bottom: 0;
     }
 
     .control-btn {
       border: none;
       background: transparent;
       color: #fff;
-      font-size: 42px;
-      min-width: 64px;
-      min-height: 64px;
+      min-width: 70px;
+      min-height: 70px;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .control-btn .material-icons {
+      font-size: 42px;
     }
 
     .play-btn {
-      width: 88px;
-      height: 88px;
-      border-radius: 20px;
+      width: 96px;
+      height: 96px;
+      border-radius: 22px;
       border: none;
       cursor: pointer;
-      font-size: 40px;
       color: white;
       background: linear-gradient(180deg, #37a1ff 0%, #246cff 100%);
       box-shadow: 0 8px 20px rgba(21, 87, 255, 0.40);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .play-btn .material-icons {
+      font-size: 46px;
     }
 
     .bottom-nav {
@@ -388,7 +375,6 @@
       .volume-box {
         width: 54px;
         height: 54px;
-        font-size: 24px;
         border-radius: 12px;
       }
 
@@ -404,38 +390,28 @@
       }
 
       .main-content {
-        top: 92px;
+        top: 130px;
         padding: 0 18px 112px;
-      }
-
-      .radio-circle {
-        width: 170px;
-        height: 170px;
-        box-shadow:
-          0 0 0 12px rgba(45, 106, 255, 0.10),
-          0 0 0 26px rgba(45, 106, 255, 0.06);
-      }
-
-      .radio-circle span {
-        font-size: 26px;
       }
 
       .stream-label {
         font-size: 13px;
         letter-spacing: 3px;
+        margin-bottom: 10px;
       }
 
       .station-name {
-        font-size: 26px;
+        font-size: 30px;
       }
 
       .station-url {
-        font-size: 14px;
+        font-size: 16px;
+        margin-bottom: 14px;
       }
 
       .status-line {
-        font-size: 16px;
-        margin-bottom: 18px;
+        font-size: 18px;
+        margin-bottom: 20px;
       }
 
       .controls {
@@ -443,16 +419,22 @@
       }
 
       .control-btn {
-        font-size: 30px;
         min-width: 46px;
         min-height: 46px;
       }
 
-      .play-btn {
-        width: 66px;
-        height: 66px;
+      .control-btn .material-icons {
         font-size: 30px;
+      }
+
+      .play-btn {
+        width: 70px;
+        height: 70px;
         border-radius: 16px;
+      }
+
+      .play-btn .material-icons {
+        font-size: 34px;
       }
 
       .bottom-nav {
@@ -545,9 +527,6 @@
       <div class="connection-text">Connected to Peter</div>
 
       <div class="main-content">
-        <div class="radio-circle-wrap">
-          <div class="radio-circle"><span>RADIO</span></div>
-        </div>
         <div class="stream-label">INTERNET STREAM</div>
         <div class="station-name">La Voix Divine</div>
         <div class="station-url">radiolavoixdivine.com</div>
