@@ -3,187 +3,293 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
+*{box-sizing:border-box;user-select:none}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Arial;background:#06143a;color:white}
+.screen{width:100vw;height:100vh;position:relative;background:radial-gradient(circle at top,#1d4ed8,#07143a 70%)}
 
-body {
-  margin:0;
-  font-family:Arial;
-  color:white;
-  background: radial-gradient(circle at top, #1e3a8a, #020617);
-  overflow:hidden;
+.page{display:none;position:absolute;inset:0}
+.page.active{display:block}
+
+.top-bar{position:absolute;top:16px;left:16px;right:16px;display:flex;justify-content:space-between;z-index:20}
+.top-left{display:flex;gap:10px}
+
+.icon-box{
+  min-width:58px;height:48px;border-radius:14px;
+  background:rgba(255,255,255,.12);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;font-weight:800;color:white;border:0;
 }
 
-.screen {
-  width:100vw;
-  height:100vh;
-  position:relative;
+.vol-btn{
+  min-width:72px;height:58px;border-radius:16px;
+  background:rgba(255,255,255,.15);
+  color:white;border:0;font-size:18px;font-weight:900;
 }
 
-/* TOP BAR */
-.top-bar {
+.connection{position:absolute;top:76px;left:18px;font-size:15px;font-weight:700;opacity:.85}
+
+.radio-main{
   position:absolute;
-  top:10px;
-  left:10px;
-  right:10px;
-  display:flex;
-  justify-content:space-between;
-}
-
-.icon-box {
-  width:32px;
-  height:32px;
-  border-radius:10px;
-  background:rgba(255,255,255,0.1);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:11px;
-}
-
-.connection {
-  position:absolute;
-  top:48px;
-  left:12px;
-  font-size:12px;
-  opacity:0.8;
-}
-
-/* CENTER */
-.radio-main {
-  position:absolute;
-  top:95px;
+  top:145px;
   left:0;
   right:0;
   text-align:center;
+  padding:0 20px;
 }
 
-.station-name {
-  font-size:38px;
-  font-weight:800;
+.stream-label{font-size:22px;letter-spacing:4px;font-weight:800;margin-bottom:12px}
+.station-name{font-size:54px;font-weight:900;line-height:1.05;margin-bottom:8px}
+.station-url{font-size:24px;font-weight:800;margin-bottom:18px;opacity:.9}
+.status-line{font-size:26px;font-weight:900;color:#ff6b6b;margin-bottom:28px}
+
+.controls{display:flex;align-items:center;justify-content:center;gap:36px}
+.control-btn{
+  width:72px;height:72px;border:0;background:transparent;
+  color:white;font-size:44px;font-weight:900;
+}
+.play-btn{
+  width:110px;height:110px;border-radius:26px;border:0;
+  background:linear-gradient(#40c7ff,#216cff);
+  color:white;font-size:54px;font-weight:900;
+  box-shadow:0 12px 30px rgba(0,70,255,.45);
 }
 
-.station-url {
-  font-size:16px;
-  opacity:0.8;
+.bottom-nav{
+  position:absolute;left:12px;right:12px;bottom:12px;height:120px;
+  border-radius:28px;background:rgba(255,255,255,.13);
+  display:flex;align-items:center;justify-content:space-around;z-index:30;
 }
 
-.status {
-  margin:10px 0;
-  font-weight:700;
+.nav-item{
+  flex:1;height:100%;border:0;background:transparent;color:white;
+  font-size:20px;font-weight:900;
+  display:flex;align-items:center;justify-content:center;
 }
+.nav-item.active{color:#9fd1ff;background:rgba(255,255,255,.08);border-radius:22px}
 
-.controls {
-  display:flex;
-  justify-content:center;
-  gap:25px;
-  margin-top:20px;
-}
-
-.control-btn {
-  font-size:28px;
-  background:none;
-  border:none;
-  color:white;
-}
-
-.play-btn {
-  width:90px;
-  height:90px;
-  border-radius:20px;
-  border:none;
-  background:linear-gradient(#3ea8ff,#216cff);
-  font-size:40px;
-  color:white;
-}
-
-/* 🔥 BIG BOTTOM NAV */
-.bottom-nav {
-  position:absolute;
-  bottom:10px;
-  left:10px;
-  right:10px;
-  height:120px;
-  border-radius:26px;
-  background:rgba(255,255,255,0.12);
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:0 10px;
-}
-
-.nav-item {
-  flex:1;
-  text-align:center;
-  font-size:16px;
-  font-weight:700;
-  white-space:nowrap;
-}
-
-.nav-icon {
-  font-size:30px;
-  margin-bottom:5px;
-}
-
+.subpage{position:absolute;inset:0;padding:24px 20px 150px}
+.header{display:flex;align-items:center;gap:16px;margin-bottom:20px}
+.back{width:64px;height:64px;border-radius:16px;border:0;background:rgba(255,255,255,.14);color:white;font-size:40px}
+.title{font-size:44px;font-weight:900}
+.card{background:rgba(255,255,255,.1);border-radius:20px;padding:18px;margin-bottom:14px;font-size:26px;font-weight:800}
+.slider{width:100%;height:40px}
 </style>
 </head>
 
 <body>
 <div class="screen">
 
-<!-- TOP -->
-<div class="top-bar">
-  <div style="display:flex; gap:6px;">
-    <div class="icon-box">WiFi</div>
-    <div class="icon-box">BT</div>
+<div id="radioPage" class="page active">
+  <div class="top-bar">
+    <div class="top-left">
+      <button class="icon-box" onclick="showPage('wifiPage')">WiFi</button>
+      <button class="icon-box" onclick="showPage('bluetoothPage')">BT</button>
+    </div>
+    <button class="vol-btn" onclick="showPage('soundPage')">VOL</button>
   </div>
-  <div class="icon-box">Vol</div>
+
+  <div class="connection" id="connectionText">Connected...</div>
+
+  <div class="radio-main">
+    <div class="stream-label">INTERNET STREAM</div>
+    <div class="station-name" id="stationName">La Voix Divine</div>
+    <div class="station-url">radiolavoixdivine.com</div>
+    <div class="status-line" id="networkStatus">● STOPPED</div>
+
+    <div class="controls">
+      <button class="control-btn" onclick="prevPreset()">⏮</button>
+      <button class="play-btn" id="playBtn" onclick="togglePlayback()">▶</button>
+      <button class="control-btn" onclick="nextPreset()">⏭</button>
+    </div>
+  </div>
 </div>
 
-<div class="connection">Connected to Public_Access</div>
-
-<!-- CENTER -->
-<div class="radio-main">
-  <div style="letter-spacing:2px;">INTERNET STREAM</div>
-  <div class="station-name">La Voix Divine</div>
-  <div class="station-url">radiolavoixdivine.com</div>
-  <div class="status">● STOPPED</div>
-
-  <div class="controls">
-    <button class="control-btn">⏮</button>
-    <button class="play-btn">▶</button>
-    <button class="control-btn">⏭</button>
+<div id="libraryPage" class="page">
+  <div class="subpage">
+    <div class="header"><button class="back" onclick="showPage('radioPage')">‹</button><div class="title">Library</div></div>
+    <div id="libraryList"><div class="card">Loading stations...</div></div>
   </div>
 </div>
 
-<!-- 🔥 BIG MENU -->
+<div id="adsPage" class="page">
+  <div class="subpage">
+    <div class="header"><button class="back" onclick="showPage('radioPage')">‹</button><div class="title">Ads</div></div>
+    <div class="card">Ad space ready</div>
+  </div>
+</div>
+
+<div id="settingsPage" class="page">
+  <div class="subpage">
+    <div class="header"><button class="back" onclick="showPage('radioPage')">‹</button><div class="title">Settings</div></div>
+    <button class="card" onclick="showPage('wifiPage')">WiFi</button>
+    <button class="card" onclick="showPage('bluetoothPage')">Bluetooth</button>
+    <button class="card" onclick="showPage('soundPage')">Sound</button>
+    <div class="card">Contact Us<br>radiolavoixdivine.com</div>
+  </div>
+</div>
+
+<div id="wifiPage" class="page">
+  <div class="subpage">
+    <div class="header"><button class="back" onclick="showPage('settingsPage')">‹</button><div class="title">WiFi</div></div>
+    <div class="card" id="wifiInfo">Loading WiFi...</div>
+  </div>
+</div>
+
+<div id="bluetoothPage" class="page">
+  <div class="subpage">
+    <div class="header"><button class="back" onclick="showPage('settingsPage')">‹</button><div class="title">Bluetooth</div></div>
+    <div class="card" id="btInfo">Loading Bluetooth...</div>
+  </div>
+</div>
+
+<div id="soundPage" class="page">
+  <div class="subpage">
+    <div class="header"><button class="back" onclick="showPage('radioPage')">‹</button><div class="title">Sound</div></div>
+    <div class="card">Volume: <span id="volumeValue">50</span></div>
+    <input class="slider" id="volumeSlider" type="range" min="0" max="100" value="50" oninput="setVolume(this.value)">
+  </div>
+</div>
+
+<div id="addPage" class="page">
+  <div class="subpage">
+    <div class="header"><button class="back" onclick="showPage('radioPage')">‹</button><div class="title">Add</div></div>
+    <div class="card">Add station later</div>
+  </div>
+</div>
+
 <div class="bottom-nav">
-
-  <div class="nav-item">
-    <div class="nav-icon">📻</div>
-    Radio
-  </div>
-
-  <div class="nav-item">
-    <div class="nav-icon">🎵</div>
-    Library
-  </div>
-
-  <div class="nav-item">
-    <div class="nav-icon">📢</div>
-    Ads
-  </div>
-
-  <div class="nav-item">
-    <div class="nav-icon">⚙️</div>
-    Settings
-  </div>
-
-  <div class="nav-item">
-    <div class="nav-icon">➕</div>
-    Add
-  </div>
-
+  <button class="nav-item active" onclick="showPage('radioPage',this)">Radio</button>
+  <button class="nav-item" onclick="showPage('libraryPage',this);renderLibrary()">Library</button>
+  <button class="nav-item" onclick="showPage('adsPage',this)">Ads</button>
+  <button class="nav-item" onclick="showPage('settingsPage',this)">Settings</button>
+  <button class="nav-item" onclick="showPage('addPage',this)">Add</button>
 </div>
 
 </div>
+
+<script>
+let appState={presets:[],preset_index:0,playing:false,volume:50,station_name:"La Voix Divine"};
+
+function showPage(id,btn){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  if(btn){
+    document.querySelectorAll(".nav-item").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+  }
+  if(id==="wifiPage") loadWifi();
+  if(id==="bluetoothPage") loadBluetooth();
+}
+
+async function loadState(){
+  try{
+    let r=await fetch("/api/state");
+    let d=await r.json();
+    appState.presets=d.presets||[];
+    appState.preset_index=d.preset_index||0;
+    appState.volume=typeof d.volume==="number"?d.volume:50;
+    appState.station_name=d.station_name||"La Voix Divine";
+    appState.playing=!!(d.playing&&d.playing.is_playing);
+    updateUI();
+  }catch(e){console.log(e)}
+}
+
+function updateUI(){
+  document.getElementById("stationName").innerText=appState.station_name||"La Voix Divine";
+  document.getElementById("playBtn").innerText=appState.playing?"⏸":"▶";
+  document.getElementById("volumeSlider").value=appState.volume;
+  document.getElementById("volumeValue").innerText=appState.volume;
+}
+
+async function loadNetwork(){
+  try{
+    let r=await fetch("/api/network-status");
+    let d=await r.json();
+    let s=document.getElementById("networkStatus");
+    if(d.connected&&d.playing){s.innerText="● LIVE";s.style.color="#ff6b6b"}
+    else if(d.connected){s.innerText="● STOPPED";s.style.color="#ffd166"}
+    else{s.innerText="● NO NETWORK";s.style.color="#ff6b6b"}
+  }catch(e){}
+}
+
+async function togglePlayback(){
+  if(appState.playing){
+    await fetch("/api/stop-stream",{method:"POST"});
+    appState.playing=false;
+  }else{
+    let p=appState.presets[appState.preset_index];
+    if(!p){return}
+    await fetch("/api/play-stream",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({url:p.url,name:p.name,subtitle:p.subtitle||"Internet Stream"})
+    });
+    appState.playing=true;
+    appState.station_name=p.name;
+  }
+  updateUI();
+  loadNetwork();
+}
+
+async function nextPreset(){
+  if(!appState.presets.length)return;
+  appState.preset_index=(appState.preset_index+1)%appState.presets.length;
+  appState.playing=false;
+  await togglePlayback();
+}
+
+async function prevPreset(){
+  if(!appState.presets.length)return;
+  appState.preset_index=(appState.preset_index-1+appState.presets.length)%appState.presets.length;
+  appState.playing=false;
+  await togglePlayback();
+}
+
+async function setVolume(v){
+  appState.volume=parseInt(v);
+  updateUI();
+  await fetch("/api/volume",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({volume:appState.volume})
+  });
+}
+
+function renderLibrary(){
+  let box=document.getElementById("libraryList");
+  if(!appState.presets.length){box.innerHTML='<div class="card">No stations found</div>';return}
+  box.innerHTML="";
+  appState.presets.forEach((p,i)=>{
+    let b=document.createElement("button");
+    b.className="card";
+    b.innerText=p.name;
+    b.onclick=async()=>{appState.preset_index=i;appState.playing=false;showPage("radioPage");await togglePlayback()};
+    box.appendChild(b);
+  });
+}
+
+async function loadWifi(){
+  try{
+    let r=await fetch("/api/wifi-status");
+    let d=await r.json();
+    document.getElementById("connectionText").innerText=d.connected?"Connected to "+d.ssid:"No connection";
+    document.getElementById("wifiInfo").innerText=d.connected?"Connected to "+d.ssid:"No connection";
+  }catch(e){}
+}
+
+async function loadBluetooth(){
+  try{
+    let r=await fetch("/api/bluetooth-status");
+    let d=await r.json();
+    document.getElementById("btInfo").innerText=d.powered?"Bluetooth On":"Bluetooth Off";
+  }catch(e){}
+}
+
+loadState();
+loadNetwork();
+loadWifi();
+setInterval(loadNetwork,5000);
+setInterval(loadState,10000);
+</script>
 </body>
 </html>
