@@ -1,5 +1,5 @@
 from flask import Flask, render_template, jsonify, request, send_file
-import json, os, subprocess, signal
+import json, os, subprocess
 from io import BytesIO
 import qrcode
 
@@ -61,7 +61,6 @@ def start_player(url):
     global PLAYER_PROCESS
     stop_player()
 
-    # Try mpv first, then ffplay as fallback
     commands = [
         ["mpv", "--no-video", "--really-quiet", url],
         ["ffplay", "-nodisp", "-autoexit", "-loglevel", "quiet", url],
@@ -141,7 +140,11 @@ def volume():
     STATE["volume"] = vol
 
     try:
-        subprocess.run(["amixer", "set", "Master", f"{vol}%"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        subprocess.run(
+            ["amixer", "set", "Master", f"{vol}%"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL
+        )
     except Exception:
         pass
 
@@ -170,12 +173,150 @@ def wifi_status():
     })
 
 
+@app.route("/api/wifi-scan")
+def wifi_scan():
+    try:
+        output = subprocess.check_output(
+            ["nmcli", "-t", "-f", "SSID,SIGNAL,SECURITY", "dev", "wifi"],
+            text=True
+        )
+
+        networks = []
+        seen = set()
+
+        for line in output.splitlines():
+            parts = line.split(":")
+            ssid = parts[0].strip() if len(parts) > 0 else ""
+            signal = parts[1].strip() if len(parts) > 1 else ""
+            security = parts[2].strip() if len(parts) > 2 else ""
+
+            if ssid and ssid not in seen:
+                seen.add(ssid)
+                networks.append({
+                    "ssid": ssid,
+                    "signal": signal,
+                    "security": security
+                })
+
+        return jsonify({"status": "ok", "networks": networks})
+
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
+@app.route("/api/wifi-connect", methods=["POST"])
+def wifi_connect():
+    data = request.get_json(silent=True) or {}
+
+    ssid = data.get("ssid", "")
+    password = data.get("password", "")
+
+    if not ssid:
+        return jsonify({"status": "error", "message": "SSID required"}), 400
+
+    try:
+        cmd = ["nmcli", "device", "wifi", "connect", ssid]
+
+        if password:
+            cmd += ["password", password]
+
+        output = subprocess.check_output(
+            cmd,
+            stderr=subprocess.STDOUT,
+            text=True
+        )
+
+        return jsonify({
+            "status": "ok",
+            "message": output
+        })
+
+    except subprocess.CalledProcessError as e:
+        return jsonify({
+            "status": "error",
+            "message": e.output
+        }), 500
+
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        }), 500
+
+
 @app.route("/api/bluetooth-status")
 def bluetooth_status():
+    try:
+        output = subprocess.check_output(["bluetoothctl", "show"], text=True)
+        powered = "Powered: yes" in output
+    except Exception:
+        powered = False
+
     return jsonify({
-        "powered": True,
+        "powered": powered,
         "connected_devices": []
     })
+
+
+@app.route("/api/bluetooth-scan")
+def bluetooth_scan():
+    try:
+        subprocess.run(
+            ["bluetoothctl", "power", "on"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL
+        )
+
+        subprocess.run(
+            ["bluetoothctl", "scan", "on"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            timeout=5
+        )
+
+        output = subprocess.check_output(["bluetoothctl", "devices"], text=True)
+
+        devices = []
+
+        for line in output.splitlines():
+            if line.startswith("Device"):
+                parts = line.split(" ", 2)
+                if len(parts) >= 3:
+                    devices.append({
+                        "mac": parts[1],
+                        "name": parts[2]
+                    })
+
+        return jsonify({"status": "ok", "devices": devices})
+
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
+@app.route("/api/bluetooth-connect", methods=["POST"])
+def bluetooth_connect():
+    data = request.get_json(silent=True) or {}
+    mac = data.get("mac", "")
+
+    if not mac:
+        return jsonify({"status": "error", "message": "MAC required"}), 400
+
+    try:
+        subprocess.run(["bluetoothctl", "power", "on"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        subprocess.run(["bluetoothctl", "trust", mac], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        subprocess.run(["bluetoothctl", "pair", mac], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=15)
+        subprocess.run(["bluetoothctl", "connect", mac], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=15)
+
+        return jsonify({
+            "status": "ok",
+            "message": "Bluetooth connected"
+        })
+
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        }), 500
 
 
 @app.route("/add_station")
