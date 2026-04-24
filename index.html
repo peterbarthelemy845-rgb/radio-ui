@@ -101,7 +101,7 @@
 
     .radio-main {
       position: absolute;
-      top: 150px;
+      top: 115px;
       left: 0;
       right: 0;
       text-align: center;
@@ -117,21 +117,21 @@
     }
 
     .station-name {
-      font-size: 34px;
+      font-size: 40px;
       font-weight: 800;
       line-height: 1.06;
       margin-bottom: 8px;
     }
 
     .station-url {
-      font-size: 16px;
+      font-size: 17px;
       font-weight: 700;
       color: rgba(255,255,255,0.88);
       margin-bottom: 16px;
     }
 
     .status-line {
-      font-size: 18px;
+      font-size: 19px;
       font-weight: 800;
       color: #ff6b6b;
       margin-bottom: 26px;
@@ -145,31 +145,33 @@
     }
 
     .control-btn {
-      width: 48px;
-      height: 48px;
+      width: 52px;
+      height: 52px;
       border: none;
       background: transparent;
       color: #fff;
-      font-size: 28px;
+      font-size: 30px;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
+      padding: 0;
     }
 
     .play-btn {
-      width: 76px;
-      height: 76px;
-      border-radius: 18px;
+      width: 82px;
+      height: 82px;
+      border-radius: 20px;
       border: none;
       background: linear-gradient(180deg, #3ea8ff 0%, #216cff 100%);
       color: #fff;
-      font-size: 34px;
+      font-size: 36px;
       display: flex;
       align-items: center;
       justify-content: center;
       box-shadow: 0 10px 22px rgba(20,80,255,0.35);
       cursor: pointer;
+      padding: 0;
     }
 
     .bottom-nav {
@@ -249,15 +251,6 @@
       max-height: calc(100vh - 150px);
       overflow-y: auto;
       padding-right: 4px;
-    }
-
-    .card-list::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    .card-list::-webkit-scrollbar-thumb {
-      background: rgba(255,255,255,0.25);
-      border-radius: 999px;
     }
 
     .row {
@@ -341,7 +334,6 @@
 <body>
   <div class="screen">
 
-    <!-- RADIO -->
     <div id="radioPage" class="page active">
       <div class="top-bar">
         <div class="top-left">
@@ -367,7 +359,6 @@
       </div>
     </div>
 
-    <!-- LIBRARY -->
     <div id="libraryPage" class="page">
       <div class="subpage">
         <div class="subpage-header">
@@ -380,7 +371,6 @@
       </div>
     </div>
 
-    <!-- ADS -->
     <div id="adsPage" class="page">
       <div class="subpage">
         <div class="subpage-header">
@@ -394,7 +384,6 @@
       </div>
     </div>
 
-    <!-- SETTINGS -->
     <div id="settingsPage" class="page">
       <div class="subpage">
         <div class="subpage-header">
@@ -426,7 +415,6 @@
       </div>
     </div>
 
-    <!-- WIFI -->
     <div id="wifiPage" class="page">
       <div class="subpage">
         <div class="subpage-header">
@@ -439,7 +427,6 @@
       </div>
     </div>
 
-    <!-- BLUETOOTH -->
     <div id="bluetoothPage" class="page">
       <div class="subpage">
         <div class="subpage-header">
@@ -452,7 +439,6 @@
       </div>
     </div>
 
-    <!-- SOUND -->
     <div id="soundPage" class="page">
       <div class="subpage">
         <div class="subpage-header">
@@ -472,7 +458,6 @@
       </div>
     </div>
 
-    <!-- ADD -->
     <div id="addPage" class="page">
       <div class="subpage">
         <div class="subpage-header">
@@ -485,7 +470,6 @@
       </div>
     </div>
 
-    <!-- NAV -->
     <div class="bottom-nav">
       <button class="nav-item active" onclick="showPage('radioPage', this)">
         <div class="nav-icon">R</div>
@@ -522,17 +506,9 @@
     };
 
     function setActiveNav(pageId) {
-      const map = {
-        radioPage: 0,
-        libraryPage: 1,
-        adsPage: 2,
-        settingsPage: 3,
-        addPage: 4
-      };
+      const map = { radioPage: 0, libraryPage: 1, adsPage: 2, settingsPage: 3, addPage: 4 };
       document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
-      if (map[pageId] !== undefined) {
-        document.querySelectorAll('.nav-item')[map[pageId]].classList.add('active');
-      }
+      if (map[pageId] !== undefined) document.querySelectorAll('.nav-item')[map[pageId]].classList.add('active');
     }
 
     function showPage(pageId, navButton) {
@@ -552,7 +528,6 @@
       document.getElementById('stationSubtitle').textContent = (appState.station_subtitle || 'Internet Stream').toUpperCase();
       document.getElementById('stationUrl').textContent = 'radiolavoixdivine.com';
       document.getElementById('playBtn').textContent = appState.playing ? '❚❚' : '▶';
-
       document.getElementById('mainVolume').value = appState.volume;
       document.getElementById('volumeValue').textContent = appState.volume;
       document.getElementById('soundSettingValue').textContent = appState.volume + ' ›';
@@ -607,11 +582,7 @@
         } else {
           let preset = appState.presets[appState.preset_index];
           if (!preset && appState.stream_url) {
-            preset = {
-              name: appState.station_name,
-              subtitle: appState.station_subtitle,
-              url: appState.stream_url
-            };
+            preset = { name: appState.station_name, subtitle: appState.station_subtitle, url: appState.stream_url };
           }
           if (!preset || !preset.url) return;
 
