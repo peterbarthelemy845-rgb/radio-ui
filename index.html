@@ -67,12 +67,11 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Arial;back
 }
 .nav-item.active{color:#9fd1ff;background:rgba(255,255,255,.08);border-radius:22px}
 
-.subpage{position:absolute;inset:0;padding:24px 20px 150px}
-.header{display:flex;align-items:center;gap:16px;margin-bottom:20px}
-.back{width:64px;height:64px;border-radius:16px;border:0;background:rgba(255,255,255,.14);color:white;font-size:40px}
-.title{font-size:44px;font-weight:900}
-.card{background:rgba(255,255,255,.1);border-radius:20px;padding:18px;margin-bottom:14px;font-size:26px;font-weight:800}
-.slider{width:100%;height:40px}
+.subpage{position:absolute;inset:0;padding:34px 28px 150px}
+.header{display:flex;align-items:center;margin-bottom:26px}
+.title{font-size:52px;font-weight:900}
+.card{background:rgba(255,255,255,.1);border-radius:20px;padding:22px;margin-bottom:16px;font-size:28px;font-weight:800;border:0;color:white;text-align:left}
+.slider{width:100%;height:44px}
 </style>
 </head>
 
@@ -83,7 +82,6 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Arial;back
   <div class="top-bar">
     <div class="top-left">
       <button class="icon-box" onclick="showPage('wifiPage')">WiFi</button>
-      <button class="icon-box" onclick="showPage('bluetoothPage')">BT</button>
     </div>
     <button class="vol-btn" onclick="showPage('soundPage')">VOL</button>
   </div>
@@ -106,21 +104,21 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Arial;back
 
 <div id="libraryPage" class="page">
   <div class="subpage">
-    <div class="header"><button class="back" onclick="showPage('radioPage')">‹</button><div class="title">Library</div></div>
+    <div class="header"><div class="title">Library</div></div>
     <div id="libraryList"><div class="card">Loading stations...</div></div>
   </div>
 </div>
 
 <div id="adsPage" class="page">
   <div class="subpage">
-    <div class="header"><button class="back" onclick="showPage('radioPage')">‹</button><div class="title">Ads</div></div>
+    <div class="header"><div class="title">Ads</div></div>
     <div class="card">Ad space ready</div>
   </div>
 </div>
 
 <div id="settingsPage" class="page">
   <div class="subpage">
-    <div class="header"><button class="back" onclick="showPage('radioPage')">‹</button><div class="title">Settings</div></div>
+    <div class="header"><div class="title">Settings</div></div>
     <button class="card" onclick="showPage('wifiPage')">WiFi</button>
     <button class="card" onclick="showPage('bluetoothPage')">Bluetooth</button>
     <button class="card" onclick="showPage('soundPage')">Sound</button>
@@ -130,21 +128,21 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Arial;back
 
 <div id="wifiPage" class="page">
   <div class="subpage">
-    <div class="header"><button class="back" onclick="showPage('settingsPage')">‹</button><div class="title">WiFi</div></div>
+    <div class="header"><div class="title">WiFi</div></div>
     <div class="card" id="wifiInfo">Loading WiFi...</div>
   </div>
 </div>
 
 <div id="bluetoothPage" class="page">
   <div class="subpage">
-    <div class="header"><button class="back" onclick="showPage('settingsPage')">‹</button><div class="title">Bluetooth</div></div>
+    <div class="header"><div class="title">Bluetooth</div></div>
     <div class="card" id="btInfo">Loading Bluetooth...</div>
   </div>
 </div>
 
 <div id="soundPage" class="page">
   <div class="subpage">
-    <div class="header"><button class="back" onclick="showPage('radioPage')">‹</button><div class="title">Sound</div></div>
+    <div class="header"><div class="title">Sound</div></div>
     <div class="card">Volume: <span id="volumeValue">50</span></div>
     <input class="slider" id="volumeSlider" type="range" min="0" max="100" value="50" oninput="setVolume(this.value)">
   </div>
@@ -152,7 +150,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Arial;back
 
 <div id="addPage" class="page">
   <div class="subpage">
-    <div class="header"><button class="back" onclick="showPage('radioPage')">‹</button><div class="title">Add</div></div>
+    <div class="header"><div class="title">Add</div></div>
     <div class="card">Add station later</div>
   </div>
 </div>
