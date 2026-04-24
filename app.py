@@ -30,12 +30,28 @@ def home():
 @app.route("/api/state")
 def state():
     config = load_config()
+
+    presets = config.get("presets", [])
+
+    if not presets:
+        presets = [{
+            "name": "La Voix Divine",
+            "subtitle": "Internet Stream",
+            "url": "http://162.244.81.219:8020/live"
+        }]
+
     return jsonify({
-        "playing": STATE["playing"],
+        "playing": {
+            "is_playing": STATE["playing"],
+            "station_name": STATE["station_name"],
+            "station_subtitle": STATE["station_subtitle"]
+        },
         "station_name": STATE["station_name"],
         "station_subtitle": STATE["station_subtitle"],
-        "stream_url": STATE["stream_url"] if STATE["playing"] else "",
-        "presets": config.get("presets", [])
+        "stream_url": STATE["stream_url"],
+        "preset_index": 0,
+        "volume": 50,
+        "presets": presets
     })
 
 @app.route("/api/play-stream", methods=["POST"])
