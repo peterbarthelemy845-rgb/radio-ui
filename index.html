@@ -4,13 +4,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 body { margin:0; font-family:Arial; background:#0b1a3a; color:white; }
-.page{display:none;padding:20px;}
+.page{display:none;padding:20px;padding-bottom:90px;}
 .active{display:block;}
 .nav{position:fixed;bottom:10px;left:10px;right:10px;display:flex;background:#ffffff22;border-radius:20px;}
-.nav div{flex:1;text-align:center;padding:10px;}
-.btn{background:#00c6ff;padding:10px;border-radius:10px;margin:10px 0;}
+.nav div{flex:1;text-align:center;padding:14px 8px;font-size:15px;}
+.btn{background:#00c6ff;padding:12px;border-radius:10px;margin:10px 0;text-align:center;}
 .card{background:#ffffff22;padding:15px;border-radius:15px;margin:10px 0;}
+.station{background:#ffffff22;padding:14px;border-radius:15px;margin:10px 0;}
+.station.activeStation{background:#00c6ff;}
 .play{width:120px;height:120px;background:#00c6ff;border-radius:20px;margin:auto;display:flex;align-items:center;justify-content:center;font-size:40px;}
+.small{font-size:13px;opacity:.8;}
 </style>
 </head>
 
@@ -18,11 +21,17 @@ body { margin:0; font-family:Arial; background:#0b1a3a; color:white; }
 
 <div id="radio" class="page active">
 <center>
-<h2>La Voix Divine</h2>
+<h2 id="stationName">La Voix Divine</h2>
+<div id="stationWebsite" class="small">radiolavoixdivine.com</div>
 <div id="status">STOPPED</div>
 <br>
-<div class="play" onclick="play()">▶</div>
+<div class="play" onclick="togglePlay()">▶</div>
 </center>
+
+<h3>Stations</h3>
+<div id="stationList">
+  <div class="card">Loading stations...</div>
+</div>
 </div>
 
 <div id="settings" class="page">
@@ -36,9 +45,11 @@ body { margin:0; font-family:Arial; background:#0b1a3a; color:white; }
 </div>
 
 <div id="add" class="page">
-<h2>Add</h2>
+<h2>Add Station</h2>
 <div class="card" style="text-align:center;">
-<img src="/qr" style="width:220px;background:white;padding:10px;border-radius:15px;">
+  <p>Scan this QR code on your phone.</p>
+  <img src="/qr" style="width:220px;background:white;padding:10px;border-radius:15px;">
+  <p class="small">https://radio-server-z0hb.onrender.com/add_station</p>
 </div>
 </div>
 
@@ -49,15 +60,67 @@ body { margin:0; font-family:Arial; background:#0b1a3a; color:white; }
 </div>
 
 <script>
-let audio = new Audio("http://162.244.81.219:8020/live");
+const API_URL = "https://radio-server-z0hb.onrender.com/api/stations";
 
-function play(){
+let stations = [];
+let currentIndex = 0;
+let audio = new Audio();
+
+async function loadStations(){
+  try {
+    const response = await fetch(API_URL);
+    const data = await response.json();
+
+    if (Array.isArray(data) && data.length > 0) {
+      stations = data;
+      renderStations();
+
+      if (!audio.src) {
+        selectStation(0);
+      }
+    }
+  } catch (error) {
+    document.getElementById("stationList").innerHTML =
+      '<div class="card">Could not load stations. Check internet.</div>';
+  }
+}
+
+function renderStations(){
+  let html = "";
+
+  stations.forEach((s, i) => {
+    html += `
+      <div class="station ${i === currentIndex ? 'activeStation' : ''}" onclick="selectStation(${i})">
+        <b>${s.name}</b><br>
+        <span class="small">${s.website || ""}</span>
+      </div>
+    `;
+  });
+
+  document.getElementById("stationList").innerHTML = html;
+}
+
+function selectStation(index){
+  currentIndex = index;
+  const station = stations[index];
+
+  document.getElementById("stationName").innerText = station.name;
+  document.getElementById("stationWebsite").innerText = station.website || "";
+
+  audio.pause();
+  audio = new Audio(station.stream_url);
+  document.getElementById("status").innerText = "STOPPED";
+
+  renderStations();
+}
+
+function togglePlay(){
   if(audio.paused){
     audio.play();
-    document.getElementById("status").innerText="LIVE";
+    document.getElementById("status").innerText = "LIVE";
   }else{
     audio.pause();
-    document.getElementById("status").innerText="STOPPED";
+    document.getElementById("status").innerText = "STOPPED";
   }
 }
 
@@ -81,6 +144,9 @@ function bt(){
     document.getElementById("bt").innerHTML=h;
   });
 }
+
+loadStations();
+setInterval(loadStations, 30000);
 </script>
 
 </body>
