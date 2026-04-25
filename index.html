@@ -1,45 +1,87 @@
-from flask import Flask, render_template, jsonify, send_file
-import subprocess, json
-import qrcode
-from io import BytesIO
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body { margin:0; font-family:Arial; background:#0b1a3a; color:white; }
+.page{display:none;padding:20px;}
+.active{display:block;}
+.nav{position:fixed;bottom:10px;left:10px;right:10px;display:flex;background:#ffffff22;border-radius:20px;}
+.nav div{flex:1;text-align:center;padding:10px;}
+.btn{background:#00c6ff;padding:10px;border-radius:10px;margin:10px 0;}
+.card{background:#ffffff22;padding:15px;border-radius:15px;margin:10px 0;}
+.play{width:120px;height:120px;background:#00c6ff;border-radius:20px;margin:auto;display:flex;align-items:center;justify-content:center;font-size:40px;}
+</style>
+</head>
 
-app = Flask(__name__)
+<body>
 
-@app.route("/")
-def home():
-    return render_template("index.html")
+<div id="radio" class="page active">
+<center>
+<h2>La Voix Divine</h2>
+<div id="status">STOPPED</div>
+<br>
+<div class="play" onclick="play()">▶</div>
+</center>
+</div>
 
-@app.route("/qr")
-def qr():
-    img = qrcode.make("http://192.168.1.170:5000/add")
-    buf = BytesIO()
-    img.save(buf)
-    buf.seek(0)
-    return send_file(buf, mimetype="image/png")
+<div id="settings" class="page">
+<h2>WiFi</h2>
+<div class="btn" onclick="wifi()">Scan WiFi</div>
+<div id="wifi"></div>
 
-@app.route("/wifi_scan")
-def wifi_scan():
-    try:
-        result = subprocess.check_output("nmcli -t -f SSID dev wifi", shell=True).decode()
-        networks = [{"ssid": n} for n in result.split("\n") if n]
-        return jsonify(networks)
-    except:
-        return jsonify([])
+<h2>Bluetooth</h2>
+<div class="btn" onclick="bt()">Scan Bluetooth</div>
+<div id="bt"></div>
+</div>
 
-@app.route("/bt_scan")
-def bt_scan():
-    try:
-        subprocess.run("bluetoothctl scan on & sleep 3; bluetoothctl scan off", shell=True)
-        result = subprocess.check_output("bluetoothctl devices", shell=True).decode()
-        devices = []
-        for line in result.split("\n"):
-            if line:
-                parts = line.split(" ", 2)
-                if len(parts) >= 3:
-                    devices.append({"name": parts[2]})
-        return jsonify(devices)
-    except:
-        return jsonify([])
+<div id="add" class="page">
+<h2>Add</h2>
+<div class="card" style="text-align:center;">
+<img src="/qr" style="width:220px;background:white;padding:10px;border-radius:15px;">
+</div>
+</div>
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+<div class="nav">
+<div onclick="show('radio')">Radio</div>
+<div onclick="show('settings')">Settings</div>
+<div onclick="show('add')">Add</div>
+</div>
+
+<script>
+let audio = new Audio("http://162.244.81.219:8020/live");
+
+function play(){
+  if(audio.paused){
+    audio.play();
+    document.getElementById("status").innerText="LIVE";
+  }else{
+    audio.pause();
+    document.getElementById("status").innerText="STOPPED";
+  }
+}
+
+function show(p){
+  document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
+  document.getElementById(p).classList.add("active");
+}
+
+function wifi(){
+  fetch("/wifi_scan").then(r=>r.json()).then(d=>{
+    let h="";
+    d.forEach(n=>h+=`<div class="card">${n.ssid}</div>`);
+    document.getElementById("wifi").innerHTML=h;
+  });
+}
+
+function bt(){
+  fetch("/bt_scan").then(r=>r.json()).then(d=>{
+    let h="";
+    d.forEach(n=>h+=`<div class="card">${n.name}</div>`);
+    document.getElementById("bt").innerHTML=h;
+  });
+}
+</script>
+
+</body>
+</html>
