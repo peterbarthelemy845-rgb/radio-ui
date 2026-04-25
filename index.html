@@ -70,8 +70,32 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Arial;back
 .subpage{position:absolute;inset:0;padding:34px 28px 150px}
 .header{display:flex;align-items:center;margin-bottom:26px}
 .title{font-size:52px;font-weight:900}
-.card{background:rgba(255,255,255,.1);border-radius:20px;padding:22px;margin-bottom:16px;font-size:28px;font-weight:800;border:0;color:white;text-align:left}
+.card{
+  background:rgba(255,255,255,.1);
+  border-radius:20px;
+  padding:22px;
+  margin-bottom:16px;
+  font-size:28px;
+  font-weight:800;
+  border:0;
+  color:white;
+  text-align:left;
+  width:100%;
+}
+.small{font-size:18px;opacity:.85;margin-top:8px;font-weight:700}
 .slider{width:100%;height:44px}
+.scan-btn{
+  background:linear-gradient(#40c7ff,#216cff);
+  color:white;
+  border:0;
+  border-radius:18px;
+  padding:18px 24px;
+  font-size:24px;
+  font-weight:900;
+  margin-bottom:18px;
+}
+.status-msg{font-size:22px;font-weight:800;margin-bottom:16px;color:#ffd166}
+.list-scroll{max-height:430px;overflow-y:auto;padding-right:4px}
 </style>
 </head>
 
@@ -129,14 +153,18 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Arial;back
 <div id="wifiPage" class="page">
   <div class="subpage">
     <div class="header"><div class="title">WiFi</div></div>
-    <div class="card" id="wifiInfo">Loading WiFi...</div>
+    <button class="scan-btn" onclick="scanWifi()">Scan WiFi</button>
+    <div class="status-msg" id="wifiMsg">Tap Scan WiFi</div>
+    <div class="list-scroll" id="wifiList"></div>
   </div>
 </div>
 
 <div id="bluetoothPage" class="page">
   <div class="subpage">
     <div class="header"><div class="title">Bluetooth</div></div>
-    <div class="card" id="btInfo">Loading Bluetooth...</div>
+    <button class="scan-btn" onclick="scanBluetooth()">Scan Bluetooth</button>
+    <div class="status-msg" id="btMsg">Tap Scan Bluetooth</div>
+    <div class="list-scroll" id="btList"></div>
   </div>
 </div>
 
@@ -151,7 +179,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Arial;back
 <div id="addPage" class="page">
   <div class="subpage">
     <div class="header"><div class="title">Add</div></div>
-    <div class="card">Add station later</div>
+    <div class="card">Scan QR from Add Station page on phone</div>
   </div>
 </div>
 
@@ -271,16 +299,102 @@ async function loadWifi(){
     let r=await fetch("/api/wifi-status");
     let d=await r.json();
     document.getElementById("connectionText").innerText=d.connected?"Connected to "+d.ssid:"No connection";
-    document.getElementById("wifiInfo").innerText=d.connected?"Connected to "+d.ssid:"No connection";
+    document.getElementById("wifiMsg").innerText=d.connected?"Connected to "+d.ssid:"Tap Scan WiFi";
   }catch(e){}
+}
+
+async function scanWifi(){
+  let msg=document.getElementById("wifiMsg");
+  let list=document.getElementById("wifiList");
+  msg.innerText="Scanning WiFi...";
+  list.innerHTML="";
+  try{
+    let r=await fetch("/api/wifi-scan");
+    let d=await r.json();
+    if(d.status!=="ok"){msg.innerText=d.message||"Scan failed";return}
+    if(!d.networks.length){msg.innerText="No networks found";return}
+    msg.innerText="Select a network";
+    d.networks.forEach(n=>{
+      let b=document.createElement("button");
+      b.className="card";
+      b.innerHTML=`${n.ssid}<div class="small">Signal: ${n.signal||"-"} Security: ${n.security||"Open"}</div>`;
+      b.onclick=()=>connectWifi(n.ssid,n.security);
+      list.appendChild(b);
+    });
+  }catch(e){
+    msg.innerText="WiFi scan failed";
+  }
+}
+
+async function connectWifi(ssid,security){
+  let password="";
+  if(security && security.trim()!==""){
+    password=prompt("Enter password for "+ssid);
+    if(password===null)return;
+  }
+  document.getElementById("wifiMsg").innerText="Connecting to "+ssid+"...";
+  try{
+    let r=await fetch("/api/wifi-connect",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({ssid:ssid,password:password})
+    });
+    let d=await r.json();
+    if(d.status==="ok"){
+      document.getElementById("wifiMsg").innerText="Connected to "+ssid;
+      document.getElementById("connectionText").innerText="Connected to "+ssid;
+    }else{
+      document.getElementById("wifiMsg").innerText=d.message||"Connect failed";
+    }
+  }catch(e){
+    document.getElementById("wifiMsg").innerText="Connect failed";
+  }
 }
 
 async function loadBluetooth(){
   try{
     let r=await fetch("/api/bluetooth-status");
     let d=await r.json();
-    document.getElementById("btInfo").innerText=d.powered?"Bluetooth On":"Bluetooth Off";
+    document.getElementById("btMsg").innerText=d.powered?"Bluetooth On":"Bluetooth Off";
   }catch(e){}
+}
+
+async function scanBluetooth(){
+  let msg=document.getElementById("btMsg");
+  let list=document.getElementById("btList");
+  msg.innerText="Scanning Bluetooth...";
+  list.innerHTML="";
+  try{
+    let r=await fetch("/api/bluetooth-scan");
+    let d=await r.json();
+    if(d.status!=="ok"){msg.innerText=d.message||"Scan failed";return}
+    if(!d.devices.length){msg.innerText="No devices found";return}
+    msg.innerText="Select a device";
+    d.devices.forEach(dev=>{
+      let b=document.createElement("button");
+      b.className="card";
+      b.innerHTML=`${dev.name}<div class="small">${dev.mac}</div>`;
+      b.onclick=()=>connectBluetooth(dev.mac,dev.name);
+      list.appendChild(b);
+    });
+  }catch(e){
+    msg.innerText="Bluetooth scan failed";
+  }
+}
+
+async function connectBluetooth(mac,name){
+  document.getElementById("btMsg").innerText="Connecting to "+name+"...";
+  try{
+    let r=await fetch("/api/bluetooth-connect",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({mac:mac})
+    });
+    let d=await r.json();
+    document.getElementById("btMsg").innerText=d.status==="ok" ? "Connected to "+name : (d.message||"Connect failed");
+  }catch(e){
+    document.getElementById("btMsg").innerText="Connect failed";
+  }
 }
 
 loadState();
