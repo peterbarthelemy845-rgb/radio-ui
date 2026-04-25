@@ -3,405 +3,203 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-*{box-sizing:border-box;user-select:none}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Arial;background:#06143a;color:white}
-.screen{width:100vw;height:100vh;position:relative;background:radial-gradient(circle at top,#1d4ed8,#07143a 70%)}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial;background:#07143a;color:white}
+.page{display:none;height:100vh}
+.active{display:block}
 
-.page{display:none;position:absolute;inset:0}
-.page.active{display:block}
+.top{padding:20px;font-size:40px;font-weight:900}
 
-.top-bar{position:absolute;top:16px;left:16px;right:16px;display:flex;justify-content:space-between;z-index:20}
-.top-left{display:flex;gap:10px}
-
-.icon-box{
-  min-width:58px;height:48px;border-radius:14px;
-  background:rgba(255,255,255,.12);
-  display:flex;align-items:center;justify-content:center;
-  font-size:16px;font-weight:800;color:white;border:0;
-}
-
-.vol-btn{
-  min-width:72px;height:58px;border-radius:16px;
-  background:rgba(255,255,255,.15);
-  color:white;border:0;font-size:18px;font-weight:900;
-}
-
-.connection{position:absolute;top:76px;left:18px;font-size:15px;font-weight:700;opacity:.85}
-
-.radio-main{
-  position:absolute;
-  top:145px;
-  left:0;
-  right:0;
-  text-align:center;
-  padding:0 20px;
-}
-
-.stream-label{font-size:22px;letter-spacing:4px;font-weight:800;margin-bottom:12px}
-.station-name{font-size:54px;font-weight:900;line-height:1.05;margin-bottom:8px}
-.station-url{font-size:24px;font-weight:800;margin-bottom:18px;opacity:.9}
-.status-line{font-size:26px;font-weight:900;color:#ff6b6b;margin-bottom:28px}
-
-.controls{display:flex;align-items:center;justify-content:center;gap:36px}
-.control-btn{
-  width:72px;height:72px;border:0;background:transparent;
-  color:white;font-size:44px;font-weight:900;
-}
-.play-btn{
-  width:110px;height:110px;border-radius:26px;border:0;
+.scan-btn{
+  margin:20px;
+  padding:16px 26px;
+  border-radius:16px;
+  border:none;
+  font-size:20px;
+  font-weight:800;
   background:linear-gradient(#40c7ff,#216cff);
-  color:white;font-size:54px;font-weight:900;
-  box-shadow:0 12px 30px rgba(0,70,255,.45);
+  color:white;
 }
 
-.bottom-nav{
-  position:absolute;left:12px;right:12px;bottom:12px;height:120px;
-  border-radius:28px;background:rgba(255,255,255,.13);
-  display:flex;align-items:center;justify-content:space-around;z-index:30;
+.status{
+  margin:20px;
+  font-size:22px;
+  font-weight:800;
 }
 
-.nav-item{
-  flex:1;height:100%;border:0;background:transparent;color:white;
-  font-size:20px;font-weight:900;
-  display:flex;align-items:center;justify-content:center;
+.list{
+  height:60vh;
+  overflow-y:auto;
+  padding:10px 20px 140px;
 }
-.nav-item.active{color:#9fd1ff;background:rgba(255,255,255,.08);border-radius:22px}
 
-.subpage{position:absolute;inset:0;padding:34px 28px 150px}
-.header{display:flex;align-items:center;margin-bottom:26px}
-.title{font-size:52px;font-weight:900}
 .card{
   background:rgba(255,255,255,.1);
-  border-radius:20px;
-  padding:22px;
-  margin-bottom:16px;
-  font-size:28px;
-  font-weight:800;
-  border:0;
-  color:white;
-  text-align:left;
-  width:100%;
-}
-.small{font-size:18px;opacity:.85;margin-top:8px;font-weight:700}
-.slider{width:100%;height:44px}
-.scan-btn{
-  background:linear-gradient(#40c7ff,#216cff);
-  color:white;
-  border:0;
   border-radius:18px;
-  padding:18px 24px;
-  font-size:24px;
-  font-weight:900;
-  margin-bottom:18px;
+  padding:18px;
+  margin-bottom:12px;
+  font-size:22px;
+  border:none;
+  color:white;
+  width:100%;
+  text-align:left;
 }
-.status-msg{font-size:22px;font-weight:800;margin-bottom:16px;color:#ffd166}
-.list-scroll{max-height:430px;overflow-y:auto;padding-right:4px}
+
+.bottom{
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  height:110px;
+  background:rgba(255,255,255,.12);
+  display:flex;
+}
+
+.nav{
+  flex:1;
+  border:none;
+  background:transparent;
+  color:white;
+  font-size:18px;
+  font-weight:800;
+}
 </style>
 </head>
 
 <body>
-<div class="screen">
 
-<div id="radioPage" class="page active">
-  <div class="top-bar">
-    <div class="top-left">
-      <button class="icon-box" onclick="showPage('wifiPage')">WiFi</button>
-    </div>
-    <button class="vol-btn" onclick="showPage('soundPage')">VOL</button>
-  </div>
+<!-- WIFI -->
+<div id="wifiPage" class="page active">
+  <div class="top">WiFi</div>
 
-  <div class="connection" id="connectionText">Connected...</div>
+  <button class="scan-btn" onclick="scanWifi()">Scan WiFi</button>
 
-  <div class="radio-main">
-    <div class="stream-label">INTERNET STREAM</div>
-    <div class="station-name" id="stationName">La Voix Divine</div>
-    <div class="station-url">radiolavoixdivine.com</div>
-    <div class="status-line" id="networkStatus">● STOPPED</div>
+  <div class="status" id="wifiStatus">Loading...</div>
 
-    <div class="controls">
-      <button class="control-btn" onclick="prevPreset()">⏮</button>
-      <button class="play-btn" id="playBtn" onclick="togglePlayback()">▶</button>
-      <button class="control-btn" onclick="nextPreset()">⏭</button>
-    </div>
-  </div>
+  <div class="list" id="wifiList"></div>
 </div>
 
-<div id="libraryPage" class="page">
-  <div class="subpage">
-    <div class="header"><div class="title">Library</div></div>
-    <div id="libraryList"><div class="card">Loading stations...</div></div>
-  </div>
+<!-- BLUETOOTH -->
+<div id="btPage" class="page">
+  <div class="top">Bluetooth</div>
+
+  <button class="scan-btn" onclick="scanBluetooth()">Scan Bluetooth</button>
+
+  <div class="status" id="btStatus">Loading...</div>
+
+  <div class="list" id="btList"></div>
 </div>
 
-<div id="adsPage" class="page">
-  <div class="subpage">
-    <div class="header"><div class="title">Ads</div></div>
-    <div class="card">Ad space ready</div>
-  </div>
-</div>
-
-<div id="settingsPage" class="page">
-  <div class="subpage">
-    <div class="header"><div class="title">Settings</div></div>
-    <button class="card" onclick="showPage('wifiPage')">WiFi</button>
-    <button class="card" onclick="showPage('bluetoothPage')">Bluetooth</button>
-    <button class="card" onclick="showPage('soundPage')">Sound</button>
-    <div class="card">Contact Us<br>radiolavoixdivine.com</div>
-  </div>
-</div>
-
-<div id="wifiPage" class="page">
-  <div class="subpage">
-    <div class="header"><div class="title">WiFi</div></div>
-    <button class="scan-btn" onclick="scanWifi()">Scan WiFi</button>
-    <div class="status-msg" id="wifiMsg">Tap Scan WiFi</div>
-    <div class="list-scroll" id="wifiList"></div>
-  </div>
-</div>
-
-<div id="bluetoothPage" class="page">
-  <div class="subpage">
-    <div class="header"><div class="title">Bluetooth</div></div>
-    <button class="scan-btn" onclick="scanBluetooth()">Scan Bluetooth</button>
-    <div class="status-msg" id="btMsg">Tap Scan Bluetooth</div>
-    <div class="list-scroll" id="btList"></div>
-  </div>
-</div>
-
-<div id="soundPage" class="page">
-  <div class="subpage">
-    <div class="header"><div class="title">Sound</div></div>
-    <div class="card">Volume: <span id="volumeValue">50</span></div>
-    <input class="slider" id="volumeSlider" type="range" min="0" max="100" value="50" oninput="setVolume(this.value)">
-  </div>
-</div>
-
-<div id="addPage" class="page">
-  <div class="subpage">
-    <div class="header"><div class="title">Add</div></div>
-    <div class="card">Scan QR from Add Station page on phone</div>
-  </div>
-</div>
-
-<div class="bottom-nav">
-  <button class="nav-item active" onclick="showPage('radioPage',this)">Radio</button>
-  <button class="nav-item" onclick="showPage('libraryPage',this);renderLibrary()">Library</button>
-  <button class="nav-item" onclick="showPage('adsPage',this)">Ads</button>
-  <button class="nav-item" onclick="showPage('settingsPage',this)">Settings</button>
-  <button class="nav-item" onclick="showPage('addPage',this)">Add</button>
-</div>
-
+<!-- NAV -->
+<div class="bottom">
+  <button class="nav" onclick="showPage('wifiPage')">WiFi</button>
+  <button class="nav" onclick="showPage('btPage')">Bluetooth</button>
 </div>
 
 <script>
-let appState={presets:[],preset_index:0,playing:false,volume:50,station_name:"La Voix Divine"};
 
-function showPage(id,btn){
+function showPage(id){
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
   document.getElementById(id).classList.add("active");
-  if(btn){
-    document.querySelectorAll(".nav-item").forEach(b=>b.classList.remove("active"));
-    btn.classList.add("active");
+
+  if(id==="wifiPage"){
+    loadWifi();
+    scanWifi(); // AUTO SCAN
   }
-  if(id==="wifiPage") loadWifi();
-  if(id==="bluetoothPage") loadBluetooth();
-}
 
-async function loadState(){
-  try{
-    let r=await fetch("/api/state");
-    let d=await r.json();
-    appState.presets=d.presets||[];
-    appState.preset_index=d.preset_index||0;
-    appState.volume=typeof d.volume==="number"?d.volume:50;
-    appState.station_name=d.station_name||"La Voix Divine";
-    appState.playing=!!(d.playing&&d.playing.is_playing);
-    updateUI();
-  }catch(e){console.log(e)}
-}
-
-function updateUI(){
-  document.getElementById("stationName").innerText=appState.station_name||"La Voix Divine";
-  document.getElementById("playBtn").innerText=appState.playing?"⏸":"▶";
-  document.getElementById("volumeSlider").value=appState.volume;
-  document.getElementById("volumeValue").innerText=appState.volume;
-}
-
-async function loadNetwork(){
-  try{
-    let r=await fetch("/api/network-status");
-    let d=await r.json();
-    let s=document.getElementById("networkStatus");
-    if(d.connected&&d.playing){s.innerText="● LIVE";s.style.color="#ff6b6b"}
-    else if(d.connected){s.innerText="● STOPPED";s.style.color="#ffd166"}
-    else{s.innerText="● NO NETWORK";s.style.color="#ff6b6b"}
-  }catch(e){}
-}
-
-async function togglePlayback(){
-  if(appState.playing){
-    await fetch("/api/stop-stream",{method:"POST"});
-    appState.playing=false;
-  }else{
-    let p=appState.presets[appState.preset_index];
-    if(!p){return}
-    await fetch("/api/play-stream",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({url:p.url,name:p.name,subtitle:p.subtitle||"Internet Stream"})
-    });
-    appState.playing=true;
-    appState.station_name=p.name;
+  if(id==="btPage"){
+    loadBluetooth();
+    scanBluetooth(); // AUTO SCAN
   }
-  updateUI();
-  loadNetwork();
-}
-
-async function nextPreset(){
-  if(!appState.presets.length)return;
-  appState.preset_index=(appState.preset_index+1)%appState.presets.length;
-  appState.playing=false;
-  await togglePlayback();
-}
-
-async function prevPreset(){
-  if(!appState.presets.length)return;
-  appState.preset_index=(appState.preset_index-1+appState.presets.length)%appState.presets.length;
-  appState.playing=false;
-  await togglePlayback();
-}
-
-async function setVolume(v){
-  appState.volume=parseInt(v);
-  updateUI();
-  await fetch("/api/volume",{
-    method:"POST",
-    headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({volume:appState.volume})
-  });
-}
-
-function renderLibrary(){
-  let box=document.getElementById("libraryList");
-  if(!appState.presets.length){box.innerHTML='<div class="card">No stations found</div>';return}
-  box.innerHTML="";
-  appState.presets.forEach((p,i)=>{
-    let b=document.createElement("button");
-    b.className="card";
-    b.innerText=p.name;
-    b.onclick=async()=>{appState.preset_index=i;appState.playing=false;showPage("radioPage");await togglePlayback()};
-    box.appendChild(b);
-  });
 }
 
 async function loadWifi(){
-  try{
-    let r=await fetch("/api/wifi-status");
-    let d=await r.json();
-    document.getElementById("connectionText").innerText=d.connected?"Connected to "+d.ssid:"No connection";
-    document.getElementById("wifiMsg").innerText=d.connected?"Connected to "+d.ssid:"Tap Scan WiFi";
-  }catch(e){}
+  let r=await fetch("/api/wifi-status");
+  let d=await r.json();
+  document.getElementById("wifiStatus").innerText=
+    d.connected ? "Connected to "+d.ssid : "Not connected";
 }
 
 async function scanWifi(){
-  let msg=document.getElementById("wifiMsg");
+  document.getElementById("wifiStatus").innerText="Scanning...";
   let list=document.getElementById("wifiList");
-  msg.innerText="Scanning WiFi...";
   list.innerHTML="";
-  try{
-    let r=await fetch("/api/wifi-scan");
-    let d=await r.json();
-    if(d.status!=="ok"){msg.innerText=d.message||"Scan failed";return}
-    if(!d.networks.length){msg.innerText="No networks found";return}
-    msg.innerText="Select a network";
-    d.networks.forEach(n=>{
-      let b=document.createElement("button");
-      b.className="card";
-      b.innerHTML=`${n.ssid}<div class="small">Signal: ${n.signal||"-"} Security: ${n.security||"Open"}</div>`;
-      b.onclick=()=>connectWifi(n.ssid,n.security);
-      list.appendChild(b);
-    });
-  }catch(e){
-    msg.innerText="WiFi scan failed";
-  }
+
+  let r=await fetch("/api/wifi-scan");
+  let d=await r.json();
+
+  d.networks.forEach(n=>{
+    let b=document.createElement("button");
+    b.className="card";
+    b.innerHTML=n.ssid+"<br><small>Signal "+n.signal+" | "+n.security+"</small>";
+    b.onclick=()=>connectWifi(n.ssid,n.security);
+    list.appendChild(b);
+  });
+
+  document.getElementById("wifiStatus").innerText="Select a network";
 }
 
-async function connectWifi(ssid,security){
-  let password="";
-  if(security && security.trim()!==""){
-    password=prompt("Enter password for "+ssid);
-    if(password===null)return;
+async function connectWifi(ssid,sec){
+  let pass="";
+  if(sec!==""){
+    pass=prompt("Password for "+ssid);
+    if(pass===null)return;
   }
-  document.getElementById("wifiMsg").innerText="Connecting to "+ssid+"...";
-  try{
-    let r=await fetch("/api/wifi-connect",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({ssid:ssid,password:password})
-    });
-    let d=await r.json();
-    if(d.status==="ok"){
-      document.getElementById("wifiMsg").innerText="Connected to "+ssid;
-      document.getElementById("connectionText").innerText="Connected to "+ssid;
-    }else{
-      document.getElementById("wifiMsg").innerText=d.message||"Connect failed";
-    }
-  }catch(e){
-    document.getElementById("wifiMsg").innerText="Connect failed";
-  }
+
+  document.getElementById("wifiStatus").innerText="Connecting...";
+
+  await fetch("/api/wifi-connect",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({ssid:ssid,password:pass})
+  });
+
+  setTimeout(loadWifi,2000);
 }
 
 async function loadBluetooth(){
-  try{
-    let r=await fetch("/api/bluetooth-status");
-    let d=await r.json();
-    document.getElementById("btMsg").innerText=d.powered?"Bluetooth On":"Bluetooth Off";
-  }catch(e){}
+  let r=await fetch("/api/bluetooth-status");
+  let d=await r.json();
+  document.getElementById("btStatus").innerText=
+    d.powered ? "Bluetooth On" : "Bluetooth Off";
 }
 
 async function scanBluetooth(){
-  let msg=document.getElementById("btMsg");
+  document.getElementById("btStatus").innerText="Scanning...";
   let list=document.getElementById("btList");
-  msg.innerText="Scanning Bluetooth...";
   list.innerHTML="";
-  try{
-    let r=await fetch("/api/bluetooth-scan");
-    let d=await r.json();
-    if(d.status!=="ok"){msg.innerText=d.message||"Scan failed";return}
-    if(!d.devices.length){msg.innerText="No devices found";return}
-    msg.innerText="Select a device";
-    d.devices.forEach(dev=>{
-      let b=document.createElement("button");
-      b.className="card";
-      b.innerHTML=`${dev.name}<div class="small">${dev.mac}</div>`;
-      b.onclick=()=>connectBluetooth(dev.mac,dev.name);
-      list.appendChild(b);
-    });
-  }catch(e){
-    msg.innerText="Bluetooth scan failed";
-  }
+
+  let r=await fetch("/api/bluetooth-scan");
+  let d=await r.json();
+
+  d.devices.forEach(dev=>{
+    let b=document.createElement("button");
+    b.className="card";
+    b.innerHTML=dev.name+"<br><small>"+dev.mac+"</small>";
+    b.onclick=()=>connectBluetooth(dev.mac);
+    list.appendChild(b);
+  });
+
+  document.getElementById("btStatus").innerText="Select a device";
 }
 
-async function connectBluetooth(mac,name){
-  document.getElementById("btMsg").innerText="Connecting to "+name+"...";
-  try{
-    let r=await fetch("/api/bluetooth-connect",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({mac:mac})
-    });
-    let d=await r.json();
-    document.getElementById("btMsg").innerText=d.status==="ok" ? "Connected to "+name : (d.message||"Connect failed");
-  }catch(e){
-    document.getElementById("btMsg").innerText="Connect failed";
-  }
+async function connectBluetooth(mac){
+  document.getElementById("btStatus").innerText="Connecting...";
+
+  await fetch("/api/bluetooth-connect",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({mac:mac})
+  });
+
+  setTimeout(loadBluetooth,2000);
 }
 
-loadState();
-loadNetwork();
+/* AUTO LOAD */
 loadWifi();
-setInterval(loadNetwork,5000);
-setInterval(loadState,10000);
+scanWifi();
+
 </script>
+
 </body>
 </html>
